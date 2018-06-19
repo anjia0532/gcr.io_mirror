@@ -19,12 +19,12 @@ function init_namespace()
   n=$1
   echo -e "${yellow}init gcr.io/$n's image...${plain}"
   # get all of the gcr images
-  imgs=$(curl -ks 'https://console.cloud.google.com/m/gcr/entities/list' \
+  imgs=$(curl -XPOST -ks 'https://console.cloud.google.com/m/gcr/entities/list' \
            -H "Cookie: ${cookie}" \
            -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.7 Safari/537.36' \
            -H 'Content-Type: application/json;charset=UTF-8' \
            -H 'Accept: application/json, text/plain, */*' \
-           --data-binary '["'${n}'",null,null,[]]' |
+           --data-binary '["'${n}'"]' |
            grep -P '"' |
            sed 's/"gcr.ListEntities"//' |
            cut -d '"' -f2 |
@@ -110,6 +110,9 @@ function mirror()
     wait ${!}
   fi
   
+  sleep 30
+  compare
+  sleep 30
   compare
   
   tmps=$(find ./gcr.io_mirror/ -type f \( -iname "*.tmp" \) -exec dirname {} \; | uniq | cut -d'/' -f3-4)
