@@ -117,7 +117,7 @@ function mirror()
   
   tmps=$(find ./gcr.io_mirror/ -type f \( -iname "*.tmp" \) -exec dirname {} \; | uniq | cut -d'/' -f3-4)
   
-  if [ -z "$tmps" ]; then
+  if [ -n "$tmps[@]" ]; then
     echo -e "${red} wait for push ${tmps[@]}"
     for img in ${tmps[@]} ; do
       n=$(echo ${img}|cut -d'/' -f1)
