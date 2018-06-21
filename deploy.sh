@@ -34,7 +34,7 @@ function init_namespace()
   for img in ${imgs[@]}  ; do
    process_run "init_imgs $img"
   done
-  wait ${!}
+  wait
 }
 
 function init_imgs()
@@ -56,7 +56,6 @@ function init_imgs()
 
 function compare()
 {
-
   echo -e "${yellow}compare image diff ...${plain}"
   find ./gcr.io_mirror/ -name "*.tmp" | while read t
   do
@@ -74,8 +73,8 @@ function pull_push_diff()
 {
   n=$1
   img=$2
-  all_of_imgs=$(find ./gcr.io_mirror -type f \( ! -iname "*.md" \) |wc -l)
-  current_ns_imgs=$(find ./gcr.io_mirror/${n}/ -type f \( ! -iname "*.md" \) |wc -l)
+  all_of_imgs=$(find ./gcr.io_mirror -type f -name "*.t*" |wc -l)
+  current_ns_imgs=$(find ./gcr.io_mirror/${n}/ -type f -name "*.t*" |wc -l)
   tmps=($(find ./gcr.io_mirror/${n}/${img}/ -type f \( -iname "*.tmp" \) -exec basename {} .tmp \; | uniq))
   
   echo -e "${red}wait for mirror${plain}/${yellow}gcr.io/${n}/* images${plain}/${green}all of images${plain}:${red}${#tmps[@]}${plain}/${yellow}${current_ns_imgs}${plain}/${green}${all_of_imgs}${plain}"
@@ -90,13 +89,14 @@ function pull_push_diff()
     docker tag gcr.io/${n}/${img}:${tag} ${user_name}/${n}.${img}:${tag}
     docker push ${user_name}/${n}.${img}:${tag}
     
-    [[ -e ./commit.lck ]] && break
+    [[ -e ./commit.lck ]] && echo -e "${red} commit.lck exist "&& break
     
     mv ./gcr.io_mirror/${n}/${img}/${tag}.tmp ./gcr.io_mirror/${n}/${img}/${tag}.tag
     
     echo -e "[gcr.io/${n}/${image}:${tag}](https://hub.docker.com/r/${user_name}/${n}.${image}/tags/)\n\n" >> CHANGES.md
     rm -rf $lock
   done
+  echo -e "${red} push ${n}/${img} done"
 }
 
 function mirror()
@@ -107,7 +107,7 @@ function mirror()
     for n in ${ns[@]}  ; do
       process_run "init_namespace $n"
     done
-    wait ${!}
+    wait
   fi
   
   sleep 30
@@ -115,22 +115,18 @@ function mirror()
   sleep 30
   compare
   
-  while true
-  do
-    tmps=$(find ./gcr.io_mirror/ -type f \( -iname "*.tmp" \) -exec dirname {} \; | uniq | cut -d'/' -f3-4)    
-    if [ -n "$tmps[@]" ]; then
-      echo -e "${red} wait for push ${tmps[@]}"
-      for img in ${tmps[@]} ; do
-        n=$(echo ${img}|cut -d'/' -f1)
-        image=$(echo ${img}|cut -d'/' -f2)
-        process_run "pull_push_diff $n $image"
-      done
-      wait
-    else
-      break
-    fi
-    sleep 30
-  done
+  tmp_imgs=$(find ./gcr.io_mirror/ -type f \( -iname "*.tmp" \) -exec dirname {} \; | uniq | cut -d'/' -f3-4)
+  
+  if [ -n "$tmp_imgs[@]" ]; then
+    echo -e "${red} wait for push ${tmp_imgs[@]}"
+    for img in ${tmp_imgs[@]} ; do
+      echo -e "${red} wait for push ${img}"
+      n=$(echo ${img}|cut -d'/' -f1)
+      image=$(echo ${img}|cut -d'/' -f2)
+      process_run "pull_push_diff $n $image"
+    done
+    wait
+  fi
   
   images=($(find ./gcr.io_mirror/ -type f -name "*.tag" |uniq|sort))
   
