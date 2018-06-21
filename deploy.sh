@@ -115,17 +115,22 @@ function mirror()
   sleep 30
   compare
   
-  tmps=$(find ./gcr.io_mirror/ -type f \( -iname "*.tmp" \) -exec dirname {} \; | uniq | cut -d'/' -f3-4)
-  
-  if [ -n "$tmps[@]" ]; then
-    echo -e "${red} wait for push ${tmps[@]}"
-    for img in ${tmps[@]} ; do
-      n=$(echo ${img}|cut -d'/' -f1)
-      image=$(echo ${img}|cut -d'/' -f2)
-      process_run "pull_push_diff $n $image"
-    done
-    wait ${!}
-  fi
+  while true
+  do
+    tmps=$(find ./gcr.io_mirror/ -type f \( -iname "*.tmp" \) -exec dirname {} \; | uniq | cut -d'/' -f3-4)    
+    if [ -n "$tmps[@]" ]; then
+      echo -e "${red} wait for push ${tmps[@]}"
+      for img in ${tmps[@]} ; do
+        n=$(echo ${img}|cut -d'/' -f1)
+        image=$(echo ${img}|cut -d'/' -f2)
+        process_run "pull_push_diff $n $image"
+      done
+      wait
+    else
+      break
+    fi
+    sleep 30
+  done
   
   images=($(find ./gcr.io_mirror/ -type f -name "*.tag" |uniq|sort))
   
