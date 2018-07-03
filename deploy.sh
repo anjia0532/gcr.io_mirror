@@ -156,7 +156,7 @@ function commit()
   ns=($(cat ./gcr_namespaces 2>/dev/null || echo google-containers))
   readme=./gcr.io_mirror/README.md
   export current_date=$(date +'%Y-%m-%d %H:%M')
-  envsubst < README.tpl >"${readme}"
+  cat README.tpl | envsubst '$user_name $current_date' > "${readme}"
   
   echo -e "Mirror ${#ns[@]} namespaces image from gcr.io\n-----\n\n" >> "${readme}"
   for n in ${ns[@]} ; do
