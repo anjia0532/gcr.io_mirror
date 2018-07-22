@@ -19,9 +19,14 @@ Example
 -------
 
 ```bash
-docker pull gcr.io/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1 
-# eq 
+
 docker pull ${user_name}/google-containers.federation-controller-manager-arm64:v1.3.1-beta.1
+# eq
+docker pull gcr.io/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1 
+
+# special
+# eq 
+docker pull k8s.gcr.io/federation-controller-manager-arm64:v1.3.1-beta.1
 ```
 
 ReTag ${user_name} images to gcr.io 
