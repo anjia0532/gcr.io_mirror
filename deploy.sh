@@ -132,6 +132,8 @@ function mirror()
   
   cp ./gcr.io_mirror/CHANGES.md ./CHANGES1.md 2>/dev/null
   
+  [[ ! -s ./CHANGES1.md ]] && touch ./CHANGES1.md
+  
   find ./gcr.io_mirror/ -type f -name "*.md" -exec rm -rf {} \;
     
   for img in ${images[@]} ; do
@@ -164,7 +166,7 @@ function commit()
   done
   
   if [ -s CHANGES.md ]; then
-    (echo -e "## $(date +'%Y-%m-%d %H:%M') \n" && cat CHANGES.md && cat CHANGES1.md 2>/dev/null) >> gcr.io_mirror/CHANGES.md
+    (echo -e "## $(date +'%Y-%m-%d %H:%M') \n" && cat CHANGES.md 2>/dev/null&& cat CHANGES1.md 2>/dev/null) >> gcr.io_mirror/CHANGES.md
   fi
   
   echo -e "${red} commit to github master"
