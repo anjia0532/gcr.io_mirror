@@ -30,16 +30,17 @@ function init_namespace()
            cut -d '"' -f2 |
            sort |
            uniq)
-
+  echo ${imgs[@]}
   for img in ${imgs[@]}  ; do
-   process_run "init_imgs $img"
+   process_run "init_imgs $n $img"
   done
   wait
 }
 
 function init_imgs()
 {
-  img=$1
+  n=$1
+  img=$2
   echo -e "${yellow}init gcr.io/$n/${img}'s image...${plain}"
   # get all  tags for this image
   gcr_content=$(curl -ks -X GET https://gcr.io/v2/${n}/${img}/tags/list)
@@ -47,7 +48,7 @@ function init_imgs()
 
   # if this image dir not exits
   [[ ! -d ${dir} ]] && mkdir -p ${dir};
-  echo ${gcr_content}
+  
   # create img tmp file,named by tag's name, set access's time,modify's time by this image manifest's timeUploadedMs
   echo ${gcr_content} | jq -r '.manifest|to_entries[]|select(.value.tag|length>0)|{k: .key,t: .value.tag[0],v: .value.timeUploadedMs} | "tf=${dir}"+.t+".tmp;echo "+.k+">${tf};touch -amd \"$(date \"+%F %T\" -d @" + .v[0:10] +")\" ${tf}"' | while read i; do
     eval $i
