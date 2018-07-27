@@ -47,7 +47,7 @@ function init_imgs()
 
   # if this image dir not exits
   [[ ! -d ${dir} ]] && mkdir -p ${dir};
-
+  echo ${gcr_content}
   # create img tmp file,named by tag's name, set access's time,modify's time by this image manifest's timeUploadedMs
   echo ${gcr_content} | jq -r '.manifest|to_entries[]|select(.value.tag|length>0)|{k: .key,t: .value.tag[0],v: .value.timeUploadedMs} | "tf=${dir}"+.t+".tmp;echo "+.k+">${tf};touch -amd \"$(date \"+%F %T\" -d @" + .v[0:10] +")\" ${tf}"' | while read i; do
     eval $i
