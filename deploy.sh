@@ -20,7 +20,7 @@ function init_namespace()
   echo -e "${yellow}init gcr.io/$n's image...${plain}"
   # get all of the gcr images
   imgs=$(curl -XPOST -ks 'https://console.cloud.google.com/m/gcr/entities/list' \
-           -H "Cookie: ${cookie}" \
+           -H "Cookie: SID=Lwb93dwkfvjjbVfRbFVO50dTJoe_ODIweSIZdxY6uth2e78L1HELn9HwA3mvbVLk44Moaw.; HSID=AhaogmQcmdg1ywMdH; SSID=AriJYppYjpwUBobRQ; APISID=nm-pW4ude2DgUbUX/AvOnGMZ_LTaqw6GMu; SAPISID=s-O5vS0r9zUBI78_/A0ZvWUyQShXVt0G_F; 1P_JAR=2018-7-26-11; OSID=Sgb93dwCG_RsqV6AGewcq-f6fY9HaQUmwyHl0Tn9KSO0mwXzvxHtFr0ZahvTkYUtoAgwxA.; NID=135=nWyfTg1OdhcMZ381uiK1iuLnLVhtCoqPzwDhgEPxXTxyLybeAou_qwgZJCEUxaQTynUu7g8eBYMcujC-bnoZtZun2zoikq713MDaT_gGF4tQVA2o9Sbm3QhvnMFrP140isb7G91jPFjEMnZ_Xsk94nzHvT7BWNvKs_Os8oPvwyh1R2wHXyff0V8QH7DBtlteLs3-RMYWdNYnOUeXBjDRm3WCTnmoivZoBixoPPA2-fiAn9orRSB16-iOuNNe5FkGeg; SIDCC=AGIhQKRY7NTupWLrv7HYJe8wZghvc3iEfphev-8jMeddDLlTP9XDc-s6bql4M0ejnvl4zXSdhXE" \
            -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.7 Safari/537.36' \
            -H 'Content-Type: application/json;charset=UTF-8' \
            -H 'Accept: application/json, text/plain, */*' \
