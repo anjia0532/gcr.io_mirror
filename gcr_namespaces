@@ -6,3 +6,4 @@ tf-on-k8s-dogfood
 spinnaker-marketplace
 google-containers
 distroless
+istio-release
