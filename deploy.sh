@@ -200,8 +200,8 @@ do
     docker_dir=$(docker info | grep "Docker Root Dir" | cut -d':' -f2)
     used=$(df -h ${docker_dir}|awk '{if(NR>1)print $5}')
     echo -e "${red} duration:${duration}s, docker root dir :${docker_dir}:used:${used}"
-    [[ ${used} > '70%' ]] && docker system prune -f -a
-    sleep 30
+    [[ ${used} > '60%' ]] && docker system prune -f -a
+    sleep 10
   fi
 done
 
