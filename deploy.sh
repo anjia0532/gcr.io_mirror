@@ -53,6 +53,20 @@ function init_imgs()
   echo ${gcr_content} | jq -r '.manifest|to_entries[]|select(.value.tag|length>0)|{k: .key,t: .value.tag[0],v: .value.timeUploadedMs} | "tf=${dir}"+.t+".tmp;echo "+.k+">${tf};touch -amd \"$(date \"+%F %T\" -d @" + .v[0:10] +")\" ${tf}"' | while read i; do
     eval $i
   done
+  
+  # download docker hub tags
+  next="https://hub.docker.com/v2/repositories/anjia0532/${n}.${img}/tags/?page_size=100"
+  while [ "null" != "${next}" ];do
+    hub_content=$(curl -ks -X GET "${next}" )
+    next=$(echo $hub_content | jq -r '.next')
+    results=$(echo $hub_content | jq -r '.results')
+    [[ "null" = "${results}" ]] && break ;
+    
+    hub_tags=$(echo $results | jq -r '.[]|.name')
+    for t in ${hub_tags};do
+      touch "${dir}$t.t"
+    done
+  done
 }
 
 function compare()
@@ -62,7 +76,8 @@ function compare()
   do
     dir=$(dirname $t)
     name=$(basename $t .tmp)
-    if [ -e ${dir}/${name}.tag ] && [ $(cat ${dir}/${name}.tag)x = $(cat $t)x ]; then
+    # rm temp file when docker hub tag is exist
+    if [ -e ${dir}/${name}.tag ] && [ -e ${dir}/${name}.t ] && [ $(cat ${dir}/${name}.tag)x = $(cat $t)x ]; then
       rm -rf $t;
     else
       [[ -e ${dir}/${name}.tag ]] && rm -rf ${dir}/${name}.tag
@@ -115,6 +130,7 @@ function mirror()
   compare
   sleep 30
   compare
+  find ./gcr.io_mirror/ -type f -name "*.t" -exec rm -rf {} \;
   
   tmp_imgs=$(find ./gcr.io_mirror/ -type f \( -iname "*.tmp" \) -exec dirname {} \; | uniq | cut -d'/' -f3-4)
   
@@ -150,6 +166,9 @@ function mirror()
     echo -e "[gcr.io/${n}/${image}:${tag}](https://hub.docker.com/r/${user_name}/${n}.${image}/tags/)\n\n" >> ./gcr.io_mirror/${n}/${image}/README.md
   done
   
+  if [ -s CHANGES.md ]; then
+    (echo -e "## $(date +'%Y-%m-%d %H:%M') \n" && cat CHANGES.md 2>/dev/null&& cat CHANGES1.md 2>/dev/null) >> gcr.io_mirror/CHANGES.md
+  fi
   commit
 }
 
@@ -166,9 +185,6 @@ function commit()
     echo -e "[gcr.io/${n}/*](./${n}/README.md)\n\n" >> "${readme}"
   done
   
-  if [ -s CHANGES.md ]; then
-    (echo -e "## $(date +'%Y-%m-%d %H:%M') \n" && cat CHANGES.md 2>/dev/null&& cat CHANGES1.md 2>/dev/null) >> gcr.io_mirror/CHANGES.md
-  fi
   
   echo -e "${red} commit to github master"
   git -C ./gcr.io_mirror pull
