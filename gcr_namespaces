@@ -9,3 +9,4 @@ distroless
 istio-release
 linkerd-io
 cloud-datalab
+kubeflow-images-public
