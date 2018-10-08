@@ -3,7 +3,7 @@
 SECONDS=0
 
 source ./process-utils.sh
-process_init 30
+process_init 5
 
 red='\033[0;31m'
 green='\033[0;32m'
