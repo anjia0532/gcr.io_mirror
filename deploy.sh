@@ -3,7 +3,7 @@
 SECONDS=0
 docker_dir=$(docker info | grep "Docker Root Dir" | cut -d':' -f2)
 source ./process-utils.sh
-process_init 30
+process_init 5
 
 red='\033[0;31m'
 green='\033[0;32m'
@@ -110,7 +110,7 @@ function pull_push_diff()
     # this tag image byte(unit:kb)
     my_space=$(cat /tmp/${n}/${img}/$tag.tmp)
     
-    echo -e "${yellow}mirror ${n}/${img}/${tag}(${red}avail:${avail} ${yellow}space:${space} ${plain} my_space:${space})..."
+    echo -e "${yellow}mirror ${n}/${img}/${tag}(${red}avail:${avail} ${yellow}space:${space} ${plain} my_space:${my_space})..."
     
     # sleep 1 min when insufficient disk
     [[ 'space + 1048576 + my_space' -gt avail ]] && sleep 120 && continue;
