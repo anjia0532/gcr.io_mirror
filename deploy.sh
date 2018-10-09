@@ -3,7 +3,7 @@
 SECONDS=0
 docker_dir=$(docker info | grep "Docker Root Dir" | cut -d':' -f2)
 source ./process-utils.sh
-process_init 5
+process_init 6
 
 red='\033[0;31m'
 green='\033[0;32m'
@@ -103,7 +103,7 @@ function pull_push_diff()
   
   for tag in ${tmps[@]} ; do
     # disk available space (unit:kb)
-    avail=$(df ${docker_dir}|awk '{if(NR>1)print $4}')
+    avail=$(df ${docker_dir}|awk '{if(NR>1)print $4/2}')
     
     # all of size about this mirror
     space=$(awk '{sum += $1};END {print sum}' /tmp/sum)
@@ -113,7 +113,7 @@ function pull_push_diff()
     echo -e "${yellow}mirror ${n}/${img}/${tag}(${red}avail:${avail} ${yellow}space:${space} ${plain} my_space:${my_space})..."
     
     # sleep 1 min when insufficient disk
-    [[ 'space + 1048576 + my_space' -gt avail ]] && sleep 120 && continue;
+    [[ 'space + my_space' -gt avail ]] && sleep 120 && continue;
     # append this image bytes
     echo $my_space >> /tmp/sum
     
