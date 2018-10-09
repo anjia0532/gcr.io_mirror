@@ -97,7 +97,7 @@ function pull_push_diff()
   
   # get tag image size
   mkdir -p /tmp/${n}/${img}
-  curl -ks -X GET https://gcr.io/v2/${n}/${img}/tags/list | jq -r '.manifest|to_entries[]|select(.value.tag|length>0)|. as $o| [foreach .value.tag[] as $item([];$item;"tf=/tmp/${n}/${img}/"+$item+".tmp;echo "+$o.value.imageSizeBytes+" > ${tf};")]|.[]'| while read i; do
+  curl -ks -X GET https://gcr.io/v2/${n}/${img}/tags/list | jq -r '.manifest|to_entries[]|select(.value.tag|length>0)|. as $o| [foreach .value.tag[] as $item([];$item;"tf=/tmp/${n}/${img}/"+$item+".tmp;echo "+$o.value.imageSizeBytes[0:-3]+" > ${tf};")]|.[]'| while read i; do
     eval $i
   done
   
@@ -107,13 +107,13 @@ function pull_push_diff()
     
     # all of size about this mirror
     space=$(awk '{sum += $1};END {print sum}' /tmp/sum)
-    # this tag image byte(unit:b)
+    # this tag image byte(unit:kb)
     my_space=$(cat /tmp/${n}/${img}/$tag.tmp)
     
     echo -e "${yellow}mirror ${n}/${img}/${tag}(${red}avail:${avail} ${yellow}space:${space} ${plain} my_space:${space})..."
     
     # sleep 1 min when insufficient disk
-    [[ '(space + 524288000 + my_space)/1000' -gt avail ]] && sleep 60 && continue;
+    [[ 'space + 1048576 + my_space' -gt avail ]] && sleep 120 && continue;
     # append this image bytes
     echo $my_space >> /tmp/sum
     
