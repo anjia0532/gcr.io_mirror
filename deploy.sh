@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
 SECONDS=0
-
+docker_dir=$(docker info | grep "Docker Root Dir" | cut -d':' -f2)
 source ./process-utils.sh
-process_init 1
+process_init 30
 
 red='\033[0;31m'
 green='\033[0;32m'
 yellow='\033[0;33m'
 plain='\033[0m'
-
+echo 0 > /tmp/sum
 [[ -d "gcr.io_mirror" ]] && rm -rf ./gcr.io_mirror
 
 git clone "https://github.com/${user_name}/gcr.io_mirror.git"
@@ -50,7 +50,7 @@ function init_imgs()
   [[ ! -d ${dir} ]] && mkdir -p ${dir};
   
   # create img tmp file,named by tag's name, set access's time,modify's time by this image manifest's timeUploadedMs
-  echo ${gcr_content} | jq -r '.manifest|to_entries[]|select(.value.tag|length>0)|{k: .key,t: .value.tag[0],v: .value.timeUploadedMs} | "tf=${dir}"+.t+".tmp;echo "+.k+">${tf};touch -amd \"$(date \"+%F %T\" -d @" + .v[0:10] +")\" ${tf}"' | while read i; do
+  echo ${gcr_content} | jq -r '.manifest|to_entries[]|select(.value.tag|length>0)|. as $o| [foreach .value.tag[] as $item([];$item;"tf=${dir}"+$item+".tmp;echo -e "+$o.key+">${tf};touch -amd \"$(date \"+%F %T\" -d @" + $o.value.timeUploadedMs[0:10] +")\" ${tf}")]|.[]' | while read i; do
     eval $i
   done
   
@@ -95,8 +95,28 @@ function pull_push_diff()
   
   echo -e "${red}wait for mirror${plain}/${yellow}gcr.io/${n}/* images${plain}/${green}all of images${plain}:${red}${#tmps[@]}${plain}/${yellow}${current_ns_imgs}${plain}/${green}${all_of_imgs}${plain}"
   
+  # get tag image size
+  mkdir -p /tmp/${n}/${img}
+  curl -ks -X GET https://gcr.io/v2/${n}/${img}/tags/list | jq -r '.manifest|to_entries[]|select(.value.tag|length>0)|. as $o| [foreach .value.tag[] as $item([];$item;"tf=/tmp/${n}/${img}/"+$item+".tmp;echo "+$o.value.imageSizeBytes/1000+">${tf};")]|.[]'| while read i; do
+    eval $i
+  done
+  
   for tag in ${tmps[@]} ; do
-    echo -e "${yellow}mirror ${n}/${img}/${tag}...${plain}"
+    # disk available space (unit:kb)
+    avail=$(df ${docker_dir}|awk '{if(NR>1)print $4}')
+    
+    # all of size about this mirror
+    space=$(awk '{sum += $1};END {print sum}' /tmp/sum)
+    # this tag image byte(unit:b)
+    my_space=$(cat /tmp/${n}/${img}/$tag.tmp)
+    
+    echo -e "${yellow}mirror ${n}/${img}/${tag}(${red}avail:${avail} ${yellow}space:${space} ${plain} my_space:${space})..."
+    
+    # sleep 1 min when insufficient disk
+    [[ '(space + 524288000 + my_space)/1000' -gt avail ]] && sleep 60 && continue;
+    # append this image bytes
+    echo $my_space >> /tmp/sum
+    
     lock=./gcr.io_mirror/${n}/${img}/${tag}.lck
     [[ -e $lock ]] && continue;
     echo "${tag}">$lock
@@ -104,6 +124,8 @@ function pull_push_diff()
     docker pull gcr.io/${n}/${img}:${tag}
     docker tag gcr.io/${n}/${img}:${tag} ${user_name}/${n}.${img}:${tag}
     docker push ${user_name}/${n}.${img}:${tag}
+    # negative
+    echo -$my_space >> /tmp/sum
     
     [[ -e ./commit.lck ]] && echo -e "${red} commit.lck exist "&& break
     
@@ -126,8 +148,6 @@ function mirror()
     wait
   fi
   
-  sleep 30
-  compare
   sleep 30
   compare
   find ./gcr.io_mirror/ -type f -name "*.t" -exec rm -rf {} \;
@@ -213,7 +233,6 @@ do
     break
     
   else
-    docker_dir=$(docker info | grep "Docker Root Dir" | cut -d':' -f2)
     used=$(df -h ${docker_dir}|awk '{if(NR>1)print $5}')
     echo -e "${red} duration:${duration}s, docker root dir :${docker_dir}:used:${used}"
     [[ ${used} > '60%' ]] && docker system prune -f -a
