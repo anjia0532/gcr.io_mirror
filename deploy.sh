@@ -97,7 +97,7 @@ function pull_push_diff()
   
   # get tag image size
   mkdir -p /tmp/${n}/${img}
-  curl -ks -X GET https://gcr.io/v2/${n}/${img}/tags/list | jq -r '.manifest|to_entries[]|select(.value.tag|length>0)|. as $o| [foreach .value.tag[] as $item([];$item;"tf=/tmp/${n}/${img}/"+$item+".tmp;echo "+$o.value.imageSizeBytes/1000+">${tf};")]|.[]'| while read i; do
+  curl -ks -X GET https://gcr.io/v2/${n}/${img}/tags/list | jq -r '.manifest|to_entries[]|select(.value.tag|length>0)|. as $o| [foreach .value.tag[] as $item([];$item;"tf=/tmp/${n}/${img}/"+$item+".tmp;echo "+$o.value.imageSizeBytes+">${tf};")]|.[]'| while read i; do
     eval $i
   done
   
