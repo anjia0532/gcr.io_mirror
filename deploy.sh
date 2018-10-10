@@ -3,7 +3,7 @@
 SECONDS=0
 docker_dir=$(docker info | grep "Docker Root Dir" | cut -d':' -f2)
 source ./process-utils.sh
-process_init 3
+process_init 20
 
 red='\033[0;31m'
 green='\033[0;32m'
@@ -84,7 +84,6 @@ function compare()
     fi
   done
 }
-
 function pull_push_diff()
 {
   n=$1
@@ -102,24 +101,27 @@ function pull_push_diff()
   done
   
   for tag in ${tmps[@]} ; do
-  
+    
     used=$(df -h ${docker_dir}|awk '{if(NR>1)print $5}')
     echo -e "${red} duration:${duration}s, docker root dir :${docker_dir}:used:${used}"
-    [[ ${used} > '60%' ]] && docker system prune -f -a && sleep 120
     
     # disk available space (unit:kb)
-    avail=$(df ${docker_dir}|awk '{if(NR>1)print $4/2}')
+    avail=$(df ${docker_dir}|awk '{if(NR>1)print $4}')
     
     # all of size about this mirror
     space=$(awk '{sum += $1};END {print sum}' /tmp/sum)
+    
     # this tag image byte(unit:kb)
     my_space=$(cat /tmp/${n}/${img}/$tag.tmp)
     
-    echo -e "${yellow}mirror ${n}/${img}/${tag}(${red}avail:${avail} ${yellow}space:${space} ${plain} my_space:${my_space})..."
-    
     # sleep 1 min when insufficient disk
-    [[ 'space + my_space' -gt avail ]] && sleep 120 && continue;
-    # append this image bytes
+    
+    space_used=$(($my_space*4+$space))
+    
+    [[ ${space_used} -gt ${avail} || ${used} > '70%' ]] && docker system prune -f -a && sleep 120 && break;
+    
+    echo -e "${yellow}mirror ${n}/${img}/${tag}...${plain}"
+    
     echo $my_space >> /tmp/sum
     
     lock=./gcr.io_mirror/${n}/${img}/${tag}.lck
