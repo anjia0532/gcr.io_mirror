@@ -116,8 +116,8 @@ function pull_push_diff()
     
     # sleep 1 min when insufficient disk
     
-    space_used=$(($my_space*4+$space))
-    
+    space_used=$((${my_space:-1048576}*4+${space:-0}))
+    # cat ./abc 2>/dev/null || echo google-containers
     [[ ${space_used} -gt ${avail} || ${used} > '70%' ]] && docker system prune -f -a && sleep 120 && break;
     
     echo -e "${yellow}mirror ${n}/${img}/${tag}...${plain}"
