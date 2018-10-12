@@ -240,8 +240,6 @@ do
     break
     
   else
-    docker images
-    df -h ${docker_dir}
     used=$(df -h ${docker_dir}|awk '{if(NR>1)print $5}')
     echo -e "${red} duration:${duration}s, docker root dir :${docker_dir}:used:${used}"
     [[ ${used} > '60%' ]] && docker system prune -f -a
