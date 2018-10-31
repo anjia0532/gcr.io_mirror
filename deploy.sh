@@ -242,10 +242,10 @@ do
   else
     used=$(df -h ${docker_dir}|awk '{if(NR>1)print $5}')
     echo -e "${red} duration:${duration}s, docker root dir :${docker_dir}:used:${used}"
-    [[ ${used} > '60%' ]] && docker system prune -f -a
+    [[ ${used} > '70%' ]] && docker system prune -f -a
     sleep 10
   fi
 done
 
-sleep 120
+sleep 30
 echo "${red} bye bye"
