@@ -3,7 +3,7 @@
 SECONDS=0
 docker_dir=$(docker info | grep "Docker Root Dir" | cut -d':' -f2)
 source ./process-utils.sh
-process_init 20
+process_init 2
 
 red='\033[0;31m'
 green='\033[0;32m'
