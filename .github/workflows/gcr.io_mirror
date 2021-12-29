@@ -6,19 +6,47 @@ on:
     types: [created]
   workflow_dispatch:
 
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    
+    outputs:
+      GCR_IMAGE: ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}
+      ISSUE_NUMBER: ${{ steps.pullIssuesPorter.outputs.ISSUE_NUMBER }}
     steps:
-        # Login against a Docker registry except on PR
-    # https://github.com/docker/login-action
-    - name: Log into registry ${{ env.REGISTRY }}
+    - name: Log into docker hub
       uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
       with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         
-    - uses: actions/checkout@v2
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    - name: get porter issues
+      id: pullIssuesPorter
+      uses: actions/github-script@v3.1.0
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          const issuesResponse = await github.issues.listForRepo({
+              owner: '${{ secrets.GIT_OWNER }}',
+              repo: '${{ secrets.GIT_REPO }}',
+              state: "open",
+              labels: "porter",
+              sort: "created",
+              direction: "desc",
+              per_page: 1
+          })
+          let gcr_image
+          let issue_number = -1
+          if (Array.isArray(issuesResponse["data"]) && issuesResponse["data"].length) {
+            let title = issuesResponse["data"][0]["title"]
+            let start = 0
+            if (title.includes("[PORTER]")){
+                start = 8
+            }
+            gcr_image = issuesResponse["data"][0]["title"].substring(start).trim()
+            issue_number = issuesResponse["data"][0]["number"]
+          }
+          console.log("gcr_image from issues is ", gcr_image,", issue_number is ",issue_number)
+          core.setOutput('GCR_IMAGE', gcr_image)
+          core.setOutput('ISSUE_NUMBER', issue_number)
