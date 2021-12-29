@@ -1,0 +1,94 @@
+name: gcr.io_mirror
+
+on: 
+  issues:
+    types: [opened]
+  label:
+    types: [created]
+  workflow_dispatch:
+
+env:
+  REPO_NAME: ${{ github.event.repository.name }}
+  GH_USER: ${{ github.actor }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    outputs:
+      GCR_IMAGE: ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}
+      ISSUE_NUMBER: ${{ steps.pullIssuesPorter.outputs.ISSUE_NUMBER }}
+      MY_DOCKER_IMAGE_NAME: ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}
+      
+    steps:
+    - name: Log into docker hub
+      uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
+      with:
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+        
+    - name: get porter issues
+      id: pullIssuesPorter
+      uses: actions/github-script@v3.1.0
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          const issuesResponse = await github.issues.listForRepo({
+              owner: '${{ env.GH_USER }}',
+              repo: '${{ env.REPO_NAME }}',
+              state: "open",
+              labels: "porter",
+              sort: "created",
+              direction: "desc",
+              per_page: 1
+          })
+          let gcr_image
+          let issue_number = -1
+          if (Array.isArray(issuesResponse["data"]) && issuesResponse["data"].length) {
+            let title = issuesResponse["data"][0]["title"]
+            let start = 0
+            if (title.includes("[PORTER]")){
+                start = 8
+            }
+            gcr_image = issuesResponse["data"][0]["title"].substring(start).trim()
+            issue_number = issuesResponse["data"][0]["number"]
+          }
+          console.log("gcr_image from issues is ", gcr_image,", issue_number is ",issue_number)
+          core.setOutput('GCR_IMAGE', gcr_image)
+          core.setOutput('ISSUE_NUMBER', issue_number)
+
+    - name: Retrieve transfer image name
+      run: |
+        echo "::set-output name=MY_DOCKER_IMAGE_NAME::$(echo ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }} | sed 's/k8s\.gcr\.io/${{ secrets.DOCKER_HUB_USERNAME }}\/google-containers/g;s/gcr\.io/${{ secrets.DOCKER_HUB_USERNAME }}/g;s/\//\./g;s/ /\n/g;s/${{ secrets.DOCKER_HUB_USERNAME }}\./${{ secrets.DOCKER_HUB_USERNAME }}\//g')"
+      id: transferImage
+
+    - name: pull from gcr.io and push to docker hub 
+      shell: bash
+      run: |
+        docker pull ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}
+        echo ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}
+        docker tag ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }} ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}
+        docker push ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}
+
+    - name: Close Porter Issues
+      id: closePorterIssues
+      uses: actions/github-script@v3.1.0
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          if (${{ steps.pullIssuesPorter.outputs.ISSUE_NUMBER }} > 0){
+            const issuesResponse =  await github.issues.update({
+              owner: '${{ env.GH_USER }}',
+              repo: '${{ env.REPO_NAME }}',
+              issue_number: ${{ steps.pullIssuesPorter.outputs.ISSUE_NUMBER }},
+              state: 'closed'
+            })
+            console.log("update issues resp:", issuesResponse["status"] == 200 ? "success" : "failed" )
+            const issuesComment = await github.issues.createComment({
+                owner: '${{ env.GH_USER }}',
+                repo: '${{ env.REPO_NAME }}',
+                issue_number: ${{ steps.pullIssuesPorter.outputs.ISSUE_NUMBER }},
+                body: '转换完成 <br/>\n```bash \n#原镜像\n\n\n${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}\n\n\n#转换后镜像\n\n\n${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}\n\n\n#下载并重命名镜像\n\n\ndocker pull ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}\n\n\ndocker tag ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }} ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}\n\n\ndocker images | grep $(echo ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}|awk -F":" "{print $1}")\n\n\n```'
+            });
+            console.log("create issues comment resp:", issuesComment["status"] == 201 ? "success" : "failed" )
+          }
