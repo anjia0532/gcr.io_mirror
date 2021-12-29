@@ -1,52 +1,37 @@
-Google Container Registry Mirror [last sync 2018-11-19 16:26 UTC]
+Google Container Registry Mirror(Google Container Registry镜像加速)
 -------
-[![Sync Status](https://travis-ci.org/anjia0532/gcr.io_mirror.svg?branch=sync)](https://travis-ci.org/anjia0532/gcr.io_mirror)
 
-**Oops**
-
-![](http://ww1.sinaimg.cn/large/afaffa71ly1fxe8g1k4jwj20gt0850t1.jpg)
-
-**Azure Mirrors**
-
-thanks for @zebang li share this news!
-
-![](http://ww1.sinaimg.cn/large/afaffa71ly1g0l50nuqjlj20fo0aa3z5.jpg)
-
-Syntax
+Syntax/语法
 -------
 
 ```bash
-gcr.io/namespace/image_name:image_tag 
-#eq
-gcr.azk8s.cn/namespace/image_name:image_tag 
+# origin / 原镜像名称
+gcr.io/namespace/image_name:image_tag
+ 
+# eq / 等同于
+anjia0532/namespace.image_name:image_tag
 
-# special
-k8s.gcr.io/{image}/{tag} <==> gcr.io/google-containers/{image}/{tag} <==> gcr.azk8s.cn/namespace/image_name:image_tag 
+# special / 特别的
+k8s.gcr.io/{image}/{tag} <==> gcr.io/google-containers/{image}/{tag} <==> anjia0532/google-containers.image_name:image_tag 
 ```
 
-~~Add new namespace~~
+Uses/如何拉取新镜像
 -------
-[Fork and edit sync branch file gcr_namespaces](https://github.com/anjia0532/gcr.io_mirror/edit/sync/gcr_namespaces)
+[创建issues](https://github.com/anjia0532/gcr.io_mirror/issues/new?assignees=&labels=porter&template=gcr-io_porter.md&title=%5BPORTER%5D) ,将自动触发 github actions 进行拉取转推到docker hub
 
-append new line about namespace(e.g. `gcr.io/google-containers`  u should append `google-containers`,`k8s.gcr.io` eq `gcr.io/google-containers`)
+**注意：**
 
-save and commit a PR for this repo.
+issues标题必须为 `[PORTER]镜像名:tag` 的格式，例如`[PORTER]k8s.gcr.io/federation-controller-manager-arm64:v1.3.1-beta.1`,`[PORTER]gcr.io/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1`
 
-Example
--------
+issues的内容无所谓，可以为空
 
-```bash
+可以参考 [已搬运镜像集锦](https://github.com/anjia0532/gcr.io_mirror/issues?q=is%3Aissue+label%3Aporter+)
 
-docker pull gcr.azk8s.cn/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1 
-# eq
-docker pull gcr.io/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1 
+**注意:**
 
-# special
-# eq 
-docker pull k8s.gcr.io/federation-controller-manager-arm64:v1.3.1-beta.1
-```
+本项目目前仅支持 gcr.io和k8s.gcr.io 镜像
 
-~~ReTag anjia0532 images to gcr.io~~
+ReTag anjia0532 images to gcr.io/ 将加速下载的镜像重命名为gcr.io
 -------
 
 ```bash
@@ -82,53 +67,3 @@ for img in $(docker images --format "{{.Repository}}:{{.Tag}}"| grep "anjia0532"
   [[ ${n} == "gcr.io/google-containers" ]] && docker tag $img "k8s.gcr.io${image}${tag}"
 done
 ```
-
-[Changelog](./CHANGES.md)
--------
-
-~~Mirror 14 namespaces image from gcr.io~~
------
-
-
-[gcr.io/runconduit/*](./runconduit/README.md)
-
-
-[gcr.io/google-samples/*](./google-samples/README.md)
-
-
-[gcr.io/kubernetes-helm/*](./kubernetes-helm/README.md)
-
-
-[gcr.io/k8s-minikube/*](./k8s-minikube/README.md)
-
-
-[gcr.io/tf-on-k8s-dogfood/*](./tf-on-k8s-dogfood/README.md)
-
-
-[gcr.io/spinnaker-marketplace/*](./spinnaker-marketplace/README.md)
-
-
-[gcr.io/google-containers/*](./google-containers/README.md)
-
-
-[gcr.io/distroless/*](./distroless/README.md)
-
-
-[gcr.io/istio-release/*](./istio-release/README.md)
-
-
-[gcr.io/linkerd-io/*](./linkerd-io/README.md)
-
-
-[gcr.io/cloud-datalab/*](./cloud-datalab/README.md)
-
-
-[gcr.io/kubeflow-images-public/*](./kubeflow-images-public/README.md)
-
-
-[gcr.io/cloudsql-docker/*](./cloudsql-docker/README.md)
-
-
-[gcr.io/google-appengine/*](./google-appengine/README.md)
-
-
