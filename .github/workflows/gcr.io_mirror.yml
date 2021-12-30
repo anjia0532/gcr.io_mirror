@@ -88,7 +88,7 @@ jobs:
                 owner: '${{ env.GH_USER }}',
                 repo: '${{ env.REPO_NAME }}',
                 issue_number: ${{ steps.pullIssuesPorter.outputs.ISSUE_NUMBER }},
-                body: '转换完成 <br/>\n```bash \n#原镜像\n\n\n${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}\n\n\n#转换后镜像\n\n\n${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}\n\n\n#下载并重命名镜像\n\n\ndocker pull ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}\n\n\ndocker tag ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }} ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}\n\n\ndocker images | grep $(echo ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}|awk -F":" "{print $1}")\n\n\n```'
+                body: "转换完成 <br/>\n```bash \n#原镜像\n${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}\n\n\n#转换后镜像\n${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}\n\n\n#下载并重命名镜像\ndocker pull ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}\ndocker tag ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }} ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}\ndocker images | grep $(echo ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}|awk -F':' '{print $1}')\n```"
             });
             console.log("create issues comment resp:", issuesComment["status"] == 201 ? "success" : "failed" )
           }
