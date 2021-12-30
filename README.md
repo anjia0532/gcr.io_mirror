@@ -6,13 +6,13 @@ Syntax/语法
 
 ```bash
 # origin / 原镜像名称
-gcr.io/namespace/image_name:image_tag
+gcr.io/namespace/{image}:{tag}
  
 # eq / 等同于
-anjia0532/namespace.image_name:image_tag
+anjia0532/namespace.{image}:{tag}
 
 # special / 特别的
-k8s.gcr.io/{image}/{tag} <==> gcr.io/google-containers/{image}/{tag} <==> anjia0532/google-containers.image_name:image_tag 
+k8s.gcr.io/{image}:{tag} <==> gcr.io/google-containers/{image}:{tag} <==> anjia0532/google-containers.{image}:{tag}
 ```
 
 Uses/如何拉取新镜像
