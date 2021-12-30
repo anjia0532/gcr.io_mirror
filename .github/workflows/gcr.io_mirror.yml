@@ -1,6 +1,8 @@
 name: gcr.io_mirror
 
 on: 
+  schedule:
+    - cron: "0 0 * * *"
   issues:
     types: [opened]
   label:
@@ -52,10 +54,20 @@ jobs:
             }
             gcr_image = issuesResponse["data"][0]["title"].substring(start).trim()
             issue_number = issuesResponse["data"][0]["number"]
+            
+            const issuesComment = await github.issues.createComment({
+                owner: '${{ env.GH_USER }}',
+                repo: '${{ env.REPO_NAME }}',
+                issue_number: issue_number,
+                body: '构建进展 [https://github.com/${{ env.GH_USER }}/${{ env.REPO_NAME }}/actions/runs/${{ github.run_id }}](https://github.com/${{ env.GH_USER }}/${{ env.REPO_NAME }}/actions/runs/${{ github.run_id }})'
+            });
+            console.log("create issues comment resp:",issuesComment["status"]);
           }
           console.log("gcr_image from issues is ", gcr_image,", issue_number is ",issue_number)
           core.setOutput('GCR_IMAGE', gcr_image)
           core.setOutput('ISSUE_NUMBER', issue_number)
+
+
 
     - name: Retrieve transfer image name
       run: |
