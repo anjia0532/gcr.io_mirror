@@ -28,10 +28,6 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-
-    - name: test
-      run: |
-        cat $GITHUB_EVENT_PATH
       
     - name: get porter issues
       id: pullIssuesPorter
@@ -39,25 +35,47 @@ jobs:
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}
         script: |
-          const issuesResponse = await github.issues.listForRepo({
-              owner: '${{ env.GH_USER }}',
-              repo: '${{ env.REPO_NAME }}',
-              state: "open",
-              labels: "porter",
-              sort: "created",
-              direction: "desc",
-              per_page: 1
-          })
+          const fs = require('fs')
+          
           let gcr_image
-          let issue_number = -1
-          if (Array.isArray(issuesResponse["data"]) && issuesResponse["data"].length) {
-            let title = issuesResponse["data"][0]["title"]
+          let title
+          
+          const ev = JSON.parse(
+            fs.readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')
+          )
+          
+          let issue_number = (ev.issues || {'number': -1})['number']
+          
+          if(issue_number>0){
+            const issuesResponse = await github.issues.get({
+                owner: '${{ env.GH_USER }}',
+                repo: '${{ env.REPO_NAME }}',
+                issue_number: issue_number
+            })
+            title = issuesResponse.title
+          }else{
+          
+            const issuesResponse = await github.issues.listForRepo({
+                owner: '${{ env.GH_USER }}',
+                repo: '${{ env.REPO_NAME }}',
+                state: "open",
+                labels: "porter",
+                sort: "created",
+                direction: "desc",
+                per_page: 1
+            })
+
+            if (Array.isArray(issuesResponse["data"]) && issuesResponse["data"].length) {
+              title = issuesResponse["data"][0]["title"]
+              issue_number = issuesResponse["data"][0]["number"]
+            }
+          }
+          if(issue_number>0){
             let start = 0
             if (title.includes("[PORTER]")){
                 start = 8
             }
-            gcr_image = issuesResponse["data"][0]["title"].substring(start).trim()
-            issue_number = issuesResponse["data"][0]["number"]
+            gcr_image = title.substring(start).trim()
             
             const issuesComment = await github.issues.createComment({
                 owner: '${{ env.GH_USER }}',
@@ -66,12 +84,12 @@ jobs:
                 body: '构建进展 [https://github.com/${{ env.GH_USER }}/${{ env.REPO_NAME }}/actions/runs/${{ github.run_id }}](https://github.com/${{ env.GH_USER }}/${{ env.REPO_NAME }}/actions/runs/${{ github.run_id }})'
             });
             console.log("create issues comment resp:",issuesComment["status"]);
+            console.log("gcr_image from issues is ", gcr_image,", issue_number is ",issue_number)
+          }else{
+            core.setFailed("No Images");
           }
-          console.log("gcr_image from issues is ", gcr_image,", issue_number is ",issue_number)
           core.setOutput('GCR_IMAGE', gcr_image)
           core.setOutput('ISSUE_NUMBER', issue_number)
-
-
 
     - name: Retrieve transfer image name
       run: |
