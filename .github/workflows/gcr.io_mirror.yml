@@ -121,11 +121,15 @@ jobs:
               state: 'closed'
             })
             console.log("update issues resp:", issuesResponse["status"] == 200 ? "success" : "failed" )
+            let body = "转换失败,详见 [构建任务](https://github.com/${{ env.GH_USER }}/${{ env.REPO_NAME }}/actions/runs/${{ github.run_id }})"
+            if(${{ success() }}){
+              body = "转换完成 <br/>\n```bash \n#原镜像\n${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}\n\n\n#转换后镜像\n${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}\n\n\n#下载并重命名镜像\ndocker pull ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}\ndocker tag ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }} ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}\ndocker images | grep $(echo ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}|awk -F':' '{print $1}')\n```"
+            }
             const issuesComment = await github.issues.createComment({
                 owner: '${{ env.GH_USER }}',
                 repo: '${{ env.REPO_NAME }}',
                 issue_number: ${{ steps.pullIssuesPorter.outputs.ISSUE_NUMBER }},
-                body: "转换完成 <br/>\n```bash \n#原镜像\n${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}\n\n\n#转换后镜像\n${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}\n\n\n#下载并重命名镜像\ndocker pull ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}\ndocker tag ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }} ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}\ndocker images | grep $(echo ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}|awk -F':' '{print $1}')\n```"
+                body: body
             });
             console.log("create issues comment resp:", issuesComment["status"] == 201 ? "success" : "failed" )
           }
