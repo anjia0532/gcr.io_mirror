@@ -19,8 +19,9 @@ jobs:
     
     outputs:
       GCR_IMAGE: ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}
-      ISSUE_NUMBER: ${{ steps.pullIssuesPorter.outputs.ISSUE_NUMBER }}
-      MY_DOCKER_IMAGE_NAME: ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}
+#       ISSUE_NUMBER: ${{ steps.pullIssuesPorter.outputs.ISSUE_NUMBER }}
+#       MY_DOCKER_IMAGE_NAME: ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}
+      SUCCESS: ${{ steps.successCheck.outputs.SUCCESS }}
       
     steps:
     - name: Log into docker hub
@@ -106,6 +107,15 @@ jobs:
         docker tag ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }} ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}
         docker push ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}
 
+    - name: success check
+      id: successCheck
+      uses: actions/github-script@v3.1.0
+      if: ${{ success() }}
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          core.setOutput('SUCCESS', true)
+      
     - name: Close Porter Issues
       id: closePorterIssues
       uses: actions/github-script@v3.1.0
@@ -122,7 +132,7 @@ jobs:
             })
             console.log("update issues resp:", issuesResponse["status"] == 200 ? "success" : "failed" )
             let body = "转换失败,详见 [构建任务](https://github.com/${{ env.GH_USER }}/${{ env.REPO_NAME }}/actions/runs/${{ github.run_id }})"
-            if(${{ success() }}){
+            if(${{ steps.successCheck.outputs.SUCCESS }} || false){
               body = "转换完成 <br/>\n```bash \n#原镜像\n${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}\n\n\n#转换后镜像\n${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}\n\n\n#下载并重命名镜像\ndocker pull ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}\ndocker tag ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }} ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}\ndocker images | grep $(echo ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}|awk -F':' '{print $1}')\n```"
             }
             const issuesComment = await github.issues.createComment({
