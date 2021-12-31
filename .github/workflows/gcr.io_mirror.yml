@@ -53,6 +53,7 @@ jobs:
                 issue_number: issue_number
             })
             title = issuesResponse.title
+            console.log('issues opened trigger')
           }else{
           
             const issuesResponse = await github.issues.listForRepo({
@@ -69,6 +70,7 @@ jobs:
               title = issuesResponse["data"][0]["title"]
               issue_number = issuesResponse["data"][0]["number"]
             }
+            console.log("schedule trigger")
           }
           if(issue_number>0){
             let start = 0
@@ -107,6 +109,7 @@ jobs:
     - name: Close Porter Issues
       id: closePorterIssues
       uses: actions/github-script@v3.1.0
+      if: ${{ always() }}
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}
         script: |
