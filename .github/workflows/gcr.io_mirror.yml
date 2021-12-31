@@ -28,7 +28,11 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-        
+
+    - name: test
+      run: |
+        echo $GITHUB_REF
+      
     - name: get porter issues
       id: pullIssuesPorter
       uses: actions/github-script@v3.1.0
