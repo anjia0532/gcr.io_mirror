@@ -31,8 +31,7 @@ jobs:
 
     - name: test
       run: |
-        echo $GITHUB_EVENT_PATH 
-        echo $GITHUB_EVENT
+        cat $GITHUB_EVENT_PATH
       
     - name: get porter issues
       id: pullIssuesPorter
