@@ -9,7 +9,8 @@ assignees: ''
 
 **为了防止被滥用，目前仅仅支持一次同步一个镜像**
 
-标题必须为 `[PORTER]镜像名:tag` 的格式，例如`[PORTER]k8s.gcr.io/federation-controller-manager-arm64:v1.3.1-beta.1`,`[PORTER]gcr.io/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1`
+**Issues 必须带 `porter` label，** 简单来说就是通过模板创建就没问题，别抖机灵自己瞎弄。
+**标题必须为 `[PORTER]镜像名:tag` 的格式，** 例如`[PORTER]k8s.gcr.io/federation-controller-manager-arm64:v1.3.1-beta.1`,`[PORTER]gcr.io/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1`
 
 issues的内容无所谓，可以为空
 
