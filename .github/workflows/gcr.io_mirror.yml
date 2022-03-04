@@ -144,10 +144,9 @@ jobs:
                 run_id: ${{ github.run_id }}
               })
               console.log("jobs",jobsResponse['data'])
+              body+="\n\n 日志:\n\n"
               for(let job of jobsResponse['data']['jobs']){
-                if(github.job == job.name){
-                  body+="\n\n [详细日志]("+job.html_url+")"
-                }
+                  body+="- ["+job.name+"]("+job.html_url+")"
               }
             }
             const issuesComment = await github.issues.createComment({
