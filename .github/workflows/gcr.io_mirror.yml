@@ -143,12 +143,8 @@ jobs:
                 repo: '${{ env.REPO_NAME }}',
                 run_id: ${{ github.run_id }}
               })
-              console.log("jobs",jobsResponse)
-              for(let job of jobsResponse['jobs'] ){
-                if(github.job == job['name']){
-                  body+="\n\n [详细日志]("+job['html_url']+")"
-                }
-              }
+              console.log("jobs",jobsResponse['jobs'][0])
+              body+="\n\n [详细日志]("+jobsResponse["jobs"][0]["html_url"]+")"
             }
             const issuesComment = await github.issues.createComment({
                 owner: '${{ env.GH_USER }}',
