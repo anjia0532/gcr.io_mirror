@@ -144,9 +144,9 @@ jobs:
                 run_id: ${{ github.run_id }}
               })
               console.log("jobs",jobsResponse)
-              for(let i=0; i< jobsResponse.jobs.length; i++){
-                if(github.job == jobsResponse.jobs[i].name){
-                  body+="\n\n [详细日志]("+jobsResponse.jobs[i].html_url+")"
+              for(let job of jobsResponse['jobs'] ){
+                if(github.job == job['name']){
+                  body+="\n\n [详细日志]("+job['html_url']+")"
                 }
               }
             }
