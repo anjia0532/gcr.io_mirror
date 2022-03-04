@@ -104,6 +104,7 @@ jobs:
       run: |
         docker pull ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}
         echo ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}
+        docker images
         docker tag ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }} ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}
         docker push ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}
 
@@ -131,7 +132,7 @@ jobs:
               state: 'closed'
             })
             console.log("update issues resp:", issuesResponse["status"] == 200 ? "success" : "failed" )
-            let body = "转换失败,详见 [构建任务](https://github.com/${{ env.GH_USER }}/${{ env.REPO_NAME }}/actions/runs/${{ github.run_id }})"
+            let body = "转换失败,详见 [构建任务](https://github.com/${{ env.GH_USER }}/${{ env.REPO_NAME }}/runs/${{ github.job }}?check_suite_focus=true)"
             let success = String(${{ steps.successCheck.outputs.SUCCESS }}).toLowerCase() == "true"
             console.log("is success?", success)
             if(success){
