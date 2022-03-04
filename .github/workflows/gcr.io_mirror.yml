@@ -132,11 +132,22 @@ jobs:
               state: 'closed'
             })
             console.log("update issues resp:", issuesResponse["status"] == 200 ? "success" : "failed" )
-            let body = "转换失败,详见 [构建任务](https://github.com/${{ env.GH_USER }}/${{ env.REPO_NAME }}/runs/${{ github.job }}?check_suite_focus=true)"
+            let body = "转换失败,详见 [构建任务](https://github.com/${{ env.GH_USER }}/${{ env.REPO_NAME }}/actions/runs/${{ github.run_id }})"
             let success = String(${{ steps.successCheck.outputs.SUCCESS }}).toLowerCase() == "true"
             console.log("is success?", success)
             if(success){
               body = "转换完成 <br/>\n```bash \n#原镜像\n${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}\n\n\n#转换后镜像\n${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}\n\n\n#下载并重命名镜像\ndocker pull ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }}\ndocker tag ${{ steps.transferImage.outputs.MY_DOCKER_IMAGE_NAME }} ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}\ndocker images | grep $(echo ${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}|awk -F':' '{print $1}')\n```"
+            }else{
+              const jobsResponse =  await github.actions.listJobsForWorkflowRun({
+                owner: '${{ env.GH_USER }}',
+                repo: '${{ env.REPO_NAME }}',
+                run_id: ${{ github.run_id }}
+              })
+              for(let job of jobsResponse.jobs){
+                if(github.job == job.name){
+                  body+="\n\n [详细日志]("+job.html_url+")"
+                }
+              }
             }
             const issuesComment = await github.issues.createComment({
                 owner: '${{ env.GH_USER }}',
