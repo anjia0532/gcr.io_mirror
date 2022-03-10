@@ -47,6 +47,11 @@ https://k8s.gcr.io/v2/${namespace}/${image}/tags/list
 # gcr.io
 # e.g. https://gcr.io/v2/gloo-mesh/cert-agent/tags/list
 https://gcr.io/v2/${namespace}/${image}/tags/list
+
+# docker hub
+# e.g. https://registry.hub.docker.com/v1/repositories/anjia0532/google-containers.sig-storage.nfs-subdir-external-provisioner/tags
+https://registry.hub.docker.com/v1/repositories/${namespace}/${image}/tags
+
 ```
 
 ReTag anjia0532 images to gcr.io/ 将加速下载的镜像重命名为gcr.io
