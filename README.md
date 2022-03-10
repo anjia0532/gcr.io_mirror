@@ -35,6 +35,20 @@ issues的内容无所谓，可以为空
 
 本项目目前仅支持 gcr.io和k8s.gcr.io 镜像
 
+k8s.gcr.io 和 gcr.io 镜像tags
+------
+```bash
+
+# k8s.gcr.io
+# e.g. https://k8s.gcr.io/v2/sig-storage/nfs-subdir-external-provisioner/tags/list
+https://k8s.gcr.io/v2/${namespace}/${image}/tags/list
+
+
+# gcr.io
+# e.g. https://gcr.io/v2/gloo-mesh/cert-agent/tags/list
+https://gcr.io/v2/${namespace}/${image}/tags/list
+```
+
 ReTag anjia0532 images to gcr.io/ 将加速下载的镜像重命名为gcr.io
 -------
 
