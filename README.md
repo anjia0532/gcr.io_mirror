@@ -40,13 +40,22 @@ k8s.gcr.io 和 gcr.io 镜像tags
 ```bash
 
 # k8s.gcr.io
+# 可以通过浏览器打开或者curl等打开(需梯子)
 # e.g. https://k8s.gcr.io/v2/sig-storage/nfs-subdir-external-provisioner/tags/list
 https://k8s.gcr.io/v2/${namespace}/${image}/tags/list
 
+# 也可以直接用浏览打开看 UI 版的(需梯子)
+# e.g. web ui https://console.cloud.google.com/gcr/images/k8s-artifacts-prod/us/sig-storage/nfs-subdir-external-provisioner
+https://console.cloud.google.com/gcr/images/k8s-artifacts-prod/us/${namespace}/${image}
 
 # gcr.io
-# e.g. https://gcr.io/v2/gloo-mesh/cert-agent/tags/list
+# 可以通过浏览器打开或者curl等打开(需梯子)
+# e.g. https://gcr.io/v2/gloo-mesh/cert-agent/tags/list 
 https://gcr.io/v2/${namespace}/${image}/tags/list
+
+# e.g. web ui https://console.cloud.google.com/gcr/images/etcd-development/global/etcd
+# 也可以直接用浏览打开看 UI 版的(需梯子)
+https://console.cloud.google.com/gcr/images/${namespace}/global/${image}
 
 # docker hub
 # e.g. https://registry.hub.docker.com/v1/repositories/anjia0532/google-containers.sig-storage.nfs-subdir-external-provisioner/tags
