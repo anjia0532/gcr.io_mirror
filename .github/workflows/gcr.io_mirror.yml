@@ -71,6 +71,7 @@ jobs:
               title = issuesResponse["data"][0]["title"]
               issue_number = issuesResponse["data"][0]["number"]
             }
+            console.log(issuesResponse["data"])
             console.log("schedule trigger")
           }
           if(issue_number>0){
@@ -79,7 +80,7 @@ jobs:
                 start = 8
             }
             gcr_image = title.substring(start).trim()
-            
+            console.log(gcr_image)
             const issuesComment = await github.issues.createComment({
                 owner: '${{ env.GH_USER }}',
                 repo: '${{ env.REPO_NAME }}',
