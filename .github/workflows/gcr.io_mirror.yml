@@ -40,6 +40,7 @@ jobs:
           
           let gcr_image
           let title
+          let issues_author
           
           const ev = JSON.parse(
             fs.readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')
@@ -70,8 +71,8 @@ jobs:
             if (Array.isArray(issuesResponse["data"]) && issuesResponse["data"].length) {
               title = issuesResponse["data"][0]["title"]
               issue_number = issuesResponse["data"][0]["number"]
+              issues_author = issuesResponse["data"][0]["user"]["login"]
             }
-            console.log(issuesResponse["data"])
             console.log("schedule trigger")
           }
           if(issue_number>0){
@@ -80,15 +81,30 @@ jobs:
                 start = 8
             }
             gcr_image = title.substring(start).trim()
-            console.log(gcr_image)
+            issues_body=''
+            is_error=false
+            if( gcr_image.includes("@")){
+             // 不支持带摘要 k8s.gcr.io/ingress-nginx/kube-webhook-certgen:v1.1.1@sha256:64d8c73dca984af206adf9d6d7e46aa550362b1d7a01f3a0a91b20cc67868660
+             is_error=true
+             issues_body='@'+issues_author+' 拉取镜像不支持带摘要信息，请去除 @部分'
+            }else if( !gcr_image.includes("gcr.io")){
+              // 只支持 k8s.gcr.io 和 gcr.io
+              is_error=true
+              issues_body='@'+issues_author+' 不是说了么，只支持 k8s.gcr.io 和 gcr.io，其他源请自己想办法'
+            }else{
+              issues_body='构建进展 [https://github.com/${{ env.GH_USER }}/${{ env.REPO_NAME }}/actions/runs/${{ github.run_id }}](https://github.com/${{ env.GH_USER }}/${{ env.REPO_NAME }}/actions/runs/${{ github.run_id }})'
+            }
             const issuesComment = await github.issues.createComment({
                 owner: '${{ env.GH_USER }}',
                 repo: '${{ env.REPO_NAME }}',
                 issue_number: issue_number,
-                body: '构建进展 [https://github.com/${{ env.GH_USER }}/${{ env.REPO_NAME }}/actions/runs/${{ github.run_id }}](https://github.com/${{ env.GH_USER }}/${{ env.REPO_NAME }}/actions/runs/${{ github.run_id }})'
+                body: issues_body
             });
-            console.log("create issues comment resp:",issuesComment["status"]);
-            console.log("gcr_image from issues is ", gcr_image,", issue_number is ",issue_number)
+            console.log("create issues comment resp:", issuesComment["status"]);
+            console.log("gcr_image from issues is ", gcr_image,", issue_number is ",issue_number, ",issues_author is ", issues_author)
+            if(is_error){
+              core.setFailed("Error");
+            }
           }else{
             core.setFailed("No Images");
           }
