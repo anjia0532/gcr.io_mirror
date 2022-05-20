@@ -14,7 +14,7 @@ anjia0532/namespace.{image}:{tag}
 # special / 特别的
 k8s.gcr.io/{image}:{tag} <==> gcr.io/google-containers/{image}:{tag} <==> anjia0532/google-containers.{image}:{tag}
 ```
-建议使用 https://github.com/anjia0532/gcr.io_mirror/blob/master/README.md#%E6%8B%89%E5%8F%96%E5%B9%B6%E8%BD%AC%E6%8D%A2%E5%8D%95%E4%B8%AA%E9%95%9C%E5%83%8F 简化操作
+建议使用 [拉取并转换单个镜像](https://github.com/anjia0532/gcr.io_mirror/blob/master/README.md#%E6%8B%89%E5%8F%96%E5%B9%B6%E8%BD%AC%E6%8D%A2%E5%8D%95%E4%B8%AA%E9%95%9C%E5%83%8F) 简化操作
 
 Uses/如何拉取新镜像
 -------
