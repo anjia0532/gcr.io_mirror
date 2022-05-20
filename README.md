@@ -66,14 +66,30 @@ https://registry.hub.docker.com/v1/repositories/${namespace}/${image}/tags
 ReTag anjia0532 images to gcr.io/ 将加速下载的镜像重命名为gcr.io
 -------
 
+### 批量拉取并转换镜像
+
+```shell
+sudo tee -a img.txt > /dev/null <<EOT
+gcr.io/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1
+gcr.io/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1
+gcr.io/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1
+EOT
+
+# chmod +x batch-pull-k8s-image.sh
+cat batch-pull-k8s-image.sh
+# 代码如下 ↓↓↓
+```
+
 ```bash
-# replace gcr.io/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1 to real image
-# this will convert gcr.io/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1 
-# to anjia0532/google-containers.federation-controller-manager-arm64:v1.3.1-beta.1 and pull it
+#!/bin/sh
+
+# 替换 gcr.io/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1 为真实 image
+# 将会把 gcr.io/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1 转换为 anjia0532/google-containers.federation-controller-manager-arm64:v1.3.1-beta.1 并且会拉取他
 # k8s.gcr.io/{image}/{tag} <==> gcr.io/google-containers/{image}/{tag} <==> anjia0532/google-containers.{image}/{tag}
 
 images=$(cat img.txt)
-#or 
+
+# 或者 
 #images=$(cat <<EOF
 # gcr.io/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1
 # gcr.io/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1
@@ -84,20 +100,39 @@ images=$(cat img.txt)
 eval $(echo ${images}|
         sed 's/k8s\.gcr\.io/anjia0532\/google-containers/g;s/gcr\.io/anjia0532/g;s/\//\./g;s/ /\n/g;s/anjia0532\./anjia0532\//g' |
         uniq |
-        awk '{print "docker pull "$1";"}'
+        awk '{print "sudo docker pull "$1";"}'
        )
 
-# this code will retag all of anjia0532's image from local  e.g. anjia0532/google-containers.federation-controller-manager-arm64:v1.3.1-beta.1 
-# to gcr.io/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1
+# 下面这段代码将把本地所有的 anjia0532 镜像 (例如 anjia0532/google-containers.federation-controller-manager-arm64:v1.3.1-beta.1 )
+# 转换成 grc.io 或者 k8s.gcr.io 的镜像 (例如 gcr.io/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1)
 # k8s.gcr.io/{image}/{tag} <==> gcr.io/google-containers/{image}/{tag} <==> anjia0532/google-containers.{image}/{tag}
 
-for img in $(docker images --format "{{.Repository}}:{{.Tag}}"| grep "anjia0532"); do
+for img in $(sudo docker images --format "{{.Repository}}:{{.Tag}}"| grep "anjia0532"); do
   n=$(echo ${img}| awk -F'[/.:]' '{printf "gcr.io/%s",$2}')
   image=$(echo ${img}| awk -F'[/.:]' '{printf "/%s",$3}')
   tag=$(echo ${img}| awk -F'[:]' '{printf ":%s",$2}')
-  docker tag $img "${n}${image}${tag}"
-  [[ ${n} == "gcr.io/google-containers" ]] && docker tag $img "k8s.gcr.io${image}${tag}"
+  sudo docker tag $img "${n}${image}${tag}"
+  [[ ${n} == "gcr.io/google-containers" ]] && sudo docker tag $img "k8s.gcr.io${image}${tag}"
 done
+```
+
+### 拉取并转换单个镜像
+```shell
+# chmod +x pull-k8s-images.sh
+cat pull-k8s-images.sh
+# 代码如下 ↓↓↓
+```
+
+```shell
+#!/bin/sh
+
+k8s_img=$1
+mirror_img=$(echo ${k8s_img}|
+        sed 's/k8s\.gcr\.io/anjia0532\/google-containers/g;s/gcr\.io/anjia0532/g;s/\//\./g;s/ /\n/g;s/anjia0532\./anjia0532\//g' |
+        uniq)
+
+sudo docker pull ${mirror_img}
+sudo docker tag ${mirror_img} ${k8s_img}
 ```
 
 Copyright and License
