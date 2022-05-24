@@ -190,7 +190,7 @@ jobs:
               if(names.length==1){
                 uri="global/"+names[0]
               }
-              body+="\n\n\n gcr.io Api(需梯子) <https://gcr.io/v2/"+names.join("/")+"/tags/list>\n\n gcr.io UI <https://console.cloud.google.com/gcr/images/"+uri+">\n\n"
+              body+="\n\n\n gcr.io Api(需梯子) <https://gcr.io/v2/"+names.join("/")+"/tags/list>\n\n gcr.io UI(需梯子) <https://console.cloud.google.com/gcr/images/"+uri+">\n\n"
             }
 
             const issuesComment = await github.issues.createComment({
