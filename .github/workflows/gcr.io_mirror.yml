@@ -184,13 +184,13 @@ jobs:
             let registry = names[0]
             names=names.splice(1,2)
             if("k8s.gcr.io" == registry){
-              body+="\n\n\n k8s.gcr.io Api(需梯子) <https://k8s.gcr.io/v2/"+names.join("/")+"/tags/list>\n\n k8s.gcr.io UI(需梯子) <https://console.cloud.google.com/gcr/images/k8s-artifacts-prod/us/"+names.join("/")+">\n\n"
+              body+="\n\n\n k8s.gcr.io 镜像标签 Api(需梯子) <https://k8s.gcr.io/v2/"+names.join("/")+"/tags/list>\n\n k8s.gcr.io 镜像标签 UI(需梯子) <https://console.cloud.google.com/gcr/images/k8s-artifacts-prod/us/"+names.join("/")+">\n\n"
             }else{
-              let uri=names[0]+"/global/"+names[1]
+              let uri=names[0]+"/global/"+names.splice(1,5).join("/")
               if(names.length==1){
                 uri="global/"+names[0]
               }
-              body+="\n\n\n gcr.io Api(需梯子) <https://gcr.io/v2/"+names.join("/")+"/tags/list>\n\n gcr.io UI(需梯子) <https://console.cloud.google.com/gcr/images/"+uri+">\n\n"
+              body+="\n\n\n gcr.io 镜像标签 Api(需梯子) <https://gcr.io/v2/"+names.join("/")+"/tags/list>\n\n gcr.io 镜像标签 UI(需梯子) <https://console.cloud.google.com/gcr/images/"+uri+">\n\n"
             }
 
             const issuesComment = await github.issues.createComment({
