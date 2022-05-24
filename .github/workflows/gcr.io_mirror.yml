@@ -169,6 +169,26 @@ jobs:
               }
               labels=['failed']
             }
+
+            let gcr_img = "{{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}"
+            let colonIndex = gcr_img.indexOf(":")
+
+            if colonIndex>0 {
+              gcr_img=gcr_img.substr(0,colonIndex)
+            }
+            let names = gcr_img.split("/")
+            let registry = names[0]
+            names=names.splice(1,2)
+            if("gcr.io" == registry){
+              body+="\n k8s.gcr.io Api(需梯子) <https://k8s.gcr.io/v2/"+names.join("/")+"/tags/list>\n\n k8s.gcr.io UI(需梯子) <https://console.cloud.google.com/gcr/images/k8s-artifacts-prod/us/"+names.join("/")+">\n\n"
+            }else{
+              let uri=names[0]+"/global/"+names[1]
+              if(names.length==1){
+                uri="global/"+names[0]
+              }
+              body+="\n gcr.io Api(需梯子) <https://gcr.io/v2/"+names.join("/")+"/tags/list>\n\n gcr.io UI <https://console.cloud.google.com/gcr/images/"+uri+">\n\n"
+            }
+            
             const issuesComment = await github.issues.createComment({
                 owner: '${{ env.GH_USER }}',
                 repo: '${{ env.REPO_NAME }}',
