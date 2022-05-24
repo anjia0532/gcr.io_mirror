@@ -171,7 +171,6 @@ jobs:
             }
 
             let gcrImg = "${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}"
-            console.log(gcrImg)
             
             let colonIndex = gcrImg.indexOf(":")
 
@@ -183,11 +182,13 @@ jobs:
             let names = gcrImg.split("/")
             let registry = names[0]
             names=names.splice(1,5)
-            console.log(names)
+
             if("k8s.gcr.io" == registry){
               body+="\n\n\n k8s.gcr.io 镜像标签 Api(需梯子) <https://k8s.gcr.io/v2/"+names.join("/")+"/tags/list>\n\n k8s.gcr.io 镜像标签 UI(需梯子) <https://console.cloud.google.com/gcr/images/k8s-artifacts-prod/us/"+names.join("/")+">\n\n"
             }else{
-              let uri=names[0]+"/global/"+names.splice(1,5).join("/")
+              let uri=names[0]+"/global/"
+              names=names.splice(1,5)
+              uri+=names.join("/")
               console.log(names,uri)
               if(names.length==1){
                 uri="global/"+names[0]
