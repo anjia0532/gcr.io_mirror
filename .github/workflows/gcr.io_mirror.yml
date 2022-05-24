@@ -170,8 +170,17 @@ jobs:
               labels=['failed']
             }
 
-            let abc = "${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}"
-            console.log(abc)
+            let gcrImg = "${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}"
+            console.log(gcrImg)
+            
+            let colonIndex = gcrImg.indexOf(":")
+            console.log(colonIndex)
+
+            if colonIndex>0 {
+              gcrImg=gcrImg.substr(0,colonIndex)
+            }
+            console.log(gcrImg)
+
             const issuesComment = await github.issues.createComment({
                 owner: '${{ env.GH_USER }}',
                 repo: '${{ env.REPO_NAME }}',
