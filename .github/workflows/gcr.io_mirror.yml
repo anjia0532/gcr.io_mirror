@@ -186,10 +186,8 @@ jobs:
             if("k8s.gcr.io" == registry){
               body+="\n\n\n k8s.gcr.io 镜像标签 Api(需梯子) <https://k8s.gcr.io/v2/"+names.join("/")+"/tags/list>\n\n k8s.gcr.io 镜像标签 UI(需梯子) <https://console.cloud.google.com/gcr/images/k8s-artifacts-prod/us/"+names.join("/")+">\n\n"
             }else{
-              let imgNames = names.splice(1,5)
-              let uri=names[0]+"/global/"+imgNames.join("/")
+              let uri=names[0]+"/global/"+names.slice(1,5).join("/")
               
-              console.log(imgNames,uri)
               if(names.length==1){
                 uri="global/"+names[0]
               }
