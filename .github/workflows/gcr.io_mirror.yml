@@ -182,7 +182,7 @@ jobs:
 
             let names = gcrImg.split("/")
             let registry = names[0]
-            names=names.splice(1,2)
+            names=names.splice(1,5)
             if("k8s.gcr.io" == registry){
               body+="\n\n\n k8s.gcr.io 镜像标签 Api(需梯子) <https://k8s.gcr.io/v2/"+names.join("/")+"/tags/list>\n\n k8s.gcr.io 镜像标签 UI(需梯子) <https://console.cloud.google.com/gcr/images/k8s-artifacts-prod/us/"+names.join("/")+">\n\n"
             }else{
