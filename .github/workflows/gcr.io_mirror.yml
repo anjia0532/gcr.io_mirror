@@ -170,7 +170,7 @@ jobs:
               labels=['failed']
             }
 
-            let gcr_img = "{{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}"
+            let gcr_img = "${{ steps.pullIssuesPorter.outputs.GCR_IMAGE }}"
             let colonIndex = gcr_img.indexOf(":")
 
             if colonIndex>0 {
@@ -188,7 +188,7 @@ jobs:
               }
               body+="\n gcr.io Api(需梯子) <https://gcr.io/v2/"+names.join("/")+"/tags/list>\n\n gcr.io UI <https://console.cloud.google.com/gcr/images/"+uri+">\n\n"
             }
-            
+
             const issuesComment = await github.issues.createComment({
                 owner: '${{ env.GH_USER }}',
                 repo: '${{ env.REPO_NAME }}',
