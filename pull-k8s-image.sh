@@ -12,8 +12,8 @@ if [ -x "$(command -v docker)" ]; then
 fi
 
 if [ -x "$(command -v ctr)" ]; then
-  sudo ctr image pull docker.io/${mirror_img}
-  sudo ctr image tag docker.io/${mirror_img} ${k8s_img}
+  sudo ctr -n k8s.io image pull docker.io/${mirror_img}
+  sudo ctr -n k8s.io image tag docker.io/${mirror_img} ${k8s_img}
   exit 0
 fi
 
