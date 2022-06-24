@@ -1,8 +1,6 @@
 name: gcr.io_mirror
 
 on: 
-  schedule:
-    - cron: "0 0 * * *"
   issues:
     types: [opened]
   label:
