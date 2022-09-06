@@ -41,7 +41,23 @@ issues的内容无所谓，可以为空
 
 **注意:**
 
-本项目目前仅支持 gcr.io和k8s.gcr.io 镜像
+本项目目前仅支持 `gcr.io` , `k8s.gcr.io` , `registry.k8s.io` , `quay.io`, `ghcr.io` 镜像，其余镜像源可以提 Issues 反馈或者自己 Fork 一份，修改 `rules.yaml`
+
+
+Fork/分叉代码自行维护
+-------
+
+- 必须: <https://github.com/anjia0532/gcr.io_mirror/fork> 点击连接在自己账号下分叉出 `gcr.io_mirror` 项目
+- 可选: 修改 [./rules.yaml](./rules.yaml) 增加暂未支持的镜像库
+- 在 [./settings/secrets/actions](./settings/secrets/actions) 创建自己的参数
+
+`DOCKER_REGISTRY`: 如果推到 docker hub 为空即可
+
+`DOCKER_NAMESPACE`: 如果推到 docker hub ，则是自己的 docker hub 账号(不带@email部分)，例如我的 anjia0532
+
+`DOCKER_USER`: 如果推到 docker hub,则是 docker hub 账号(不带@email部分)，例如我的 anjia0532
+
+`DOCKER_PASSWORD`: 如果推到 docker hub，则是 docker hub 密码
 
 k8s.gcr.io 和 gcr.io 镜像tags
 ------
