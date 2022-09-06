@@ -31,7 +31,7 @@ func main() {
 		registry          = kingpin.Flag("docker.registry", "Docker Registry.").Short('r').Default("").String()
 		registryNamespace = kingpin.Flag("docker.namespace", "Docker Registry Namespace.").Short('n').String()
 		registryUserName  = kingpin.Flag("docker.user", "Docker Registry User.").Short('a').String()
-		registryPassword  = kingpin.Flag("docker.password", "Docker Registry Password.").Short('p').String()
+		registryPassword  = kingpin.Flag("docker.password", "Docker Registry Password.").Short('w').String()
 		runId             = kingpin.Flag("github.run_id", "Github Run Id.").Short('i').String()
 	)
 	kingpin.HelpFlag.Short('h')
