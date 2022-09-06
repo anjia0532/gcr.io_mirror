@@ -24,5 +24,5 @@ jobs:
           cache: true
 
       - name: 运行 go 代码
-        run: go run main.go --github.token=${{ secrets.GITHUB_TOKEN }} --github.user=${{ github.repository_owner }} --github.repo=${{ github.event.repository.name }} --docker.registry=${{ secrets.DOCKER_REGISTRY }} --docker.namespace=${{ secrets.DOCKER_NAMESPACE }} --docker.user=${{ secrets.DOCKER_USER }} --docker.password=${{ secrets.DOCKER_PASSWORD }} --github.run_id=${{ github.run_id }}
+        run: go run main.go --github.token=${{ secrets.GITHUB_TOKEN }} --github.user=${{ github.repository_owner }} --github.repo=${{ github.event.repository.name }} --docker.registry=${{ secrets.DOCKER_REGISTRY }} --docker.namespace=${{ secrets.DOCKER_NAMESPACE }} --docker.user=${{ secrets.DOCKER_USER }} --docker.secret=${{ secrets.DOCKER_PASSWORD }} --github.run_id=${{ github.run_id }}
 

@@ -31,7 +31,7 @@ func main() {
 		registry          = kingpin.Flag("docker.registry", "Docker Registry.").Short('r').Default("").String()
 		registryNamespace = kingpin.Flag("docker.namespace", "Docker Registry Namespace.").Short('n').String()
 		registryUserName  = kingpin.Flag("docker.user", "Docker Registry User.").Short('a').String()
-		registryPassword  = kingpin.Flag("docker.password", "Docker Registry Password.").Short('w').String()
+		registryPassword  = kingpin.Flag("docker.secret", "Docker Registry Password.").Short('s').String()
 		runId             = kingpin.Flag("github.run_id", "Github Run Id.").Short('i').String()
 	)
 	kingpin.HelpFlag.Short('h')
@@ -129,21 +129,26 @@ func main() {
 var resultTpl = `
 {{ if .Success }}
 {{ if .Registry }}
-**转换完成**\n
+**转换完成**
 ^^^bash
-#原镜像\n
-{{ .OriginImageName }}\n\n\n
-#转换后镜像\n
-{{ .TargetImageName }}\n\n\n
+#原镜像
+{{ .OriginImageName }}
+
+#转换后镜像
+{{ .TargetImageName }}
+
 
 #下载并重命名镜像\n
-docker pull {{ .TargetImageName }}\n
-docker tag  {{ .TargetImageName }} {{ .originImageName }}\n
-docker images | grep $(echo {{ .OriginImageName }} |awk -F':' '{print $1}')\n\n\n
+docker pull {{ .TargetImageName }}
+
+docker tag  {{ .TargetImageName }} {{ .originImageName }}
+
+docker images | grep $(echo {{ .OriginImageName }} |awk -F':' '{print $1}')
+
 ^^^
 {{ end }}
 {{ else }}
-**转换失败**\n
+**转换失败**
 详见 [构建任务](https://github.com/{{ .GhUser }}/{{ .Repo }}/actions/runs/{{ .RunId }})
 {{ end }}
 `
@@ -192,7 +197,7 @@ func mirrorByIssues(issues *github.Issue, config *Config) (err error, originImag
 	}
 
 	if len(config.RegistryNamespace) > 0 {
-		targetImageName = config.RegistryNamespace + targetImageName
+		targetImageName = config.RegistryNamespace + "/" + targetImageName
 	}
 	if len(config.Registry) > 0 {
 		targetImageName = config.Registry + "/" + targetImageName
