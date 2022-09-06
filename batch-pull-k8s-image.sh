@@ -15,7 +15,7 @@ images=$(cat img.txt)
 #)
 
 eval $(echo ${images}|
-        sed 's/k8s\.gcr\.io/anjia0532\/google-containers/g;s/gcr\.io/anjia0532/g;s/\//\./g;s/ /\n/g;s/anjia0532\./anjia0532\//g' |
+        sed 's/quay\.io/anjia0532\/quay/g;s/ghcr\.io/anjia0532\/ghcr/g;s/registry\.k8s\.io/anjia0532\/google-containers/g;s/k8s\.gcr\.io/anjia0532\/google-containers/g;s/gcr\.io/anjia0532/g;s/\//\./g;s/ /\n/g;s/anjia0532\./anjia0532\//g' |
         uniq |
         awk '{print "sudo docker pull "$1";"}'
        )
@@ -30,4 +30,5 @@ for img in $(sudo docker images --format "{{.Repository}}:{{.Tag}}"| grep "anjia
   tag=$(echo ${img}| awk -F'[:]' '{printf ":%s",$2}')
   sudo docker tag $img "${n}${image}${tag}"
   [[ ${n} == "gcr.io/google-containers" ]] && sudo docker tag $img "k8s.gcr.io${image}${tag}"
+  [[ ${n} == "gcr.io/google-containers" ]] && sudo docker tag $img "registry.k8s.io${image}${tag}"
 done
