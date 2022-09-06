@@ -144,10 +144,10 @@ docker login -u{{ .RegistryUser }} {{ .Registry }}
 {{ .TargetImageName }}
 
 
-#下载并重命名镜像\n
+#下载并重命名镜像
 docker pull {{ .TargetImageName }}
 
-docker tag  {{ .TargetImageName }} {{ .originImageName }}
+docker tag  {{ .TargetImageName }} {{ .OriginImageName }}
 
 docker images | grep $(echo {{ .OriginImageName }} |awk -F':' '{print $1}')
 
