@@ -97,6 +97,7 @@ func main() {
 	result := struct {
 		Success         bool
 		Registry        string
+		RegistryUser    string
 		OriginImageName string
 		TargetImageName string
 		GhUser          string
@@ -105,6 +106,7 @@ func main() {
 	}{
 		Success:         err == nil,
 		Registry:        config.Registry,
+		RegistryUser:    config.RegistryUserName,
 		OriginImageName: originImageName,
 		TargetImageName: targetImageName,
 		GhUser:          *ghUser,
@@ -117,7 +119,9 @@ func main() {
 	err = tmpl.Execute(&buf, &result)
 
 	fmt.Println("添加 转换结果 Comment")
-	commentIssues(issue, cli, ctx, strings.ReplaceAll(buf.String(), "^", "`"))
+	res := buf.String()
+
+	commentIssues(issue, cli, ctx, strings.ReplaceAll(res, "^", "`"))
 
 	fmt.Println("添加 转换结果 Label")
 	issuesAddLabels(issue, cli, ctx, result.Success)
@@ -128,9 +132,11 @@ func main() {
 
 var resultTpl = `
 {{ if .Success }}
-{{ if .Registry }}
 **转换完成**
 ^^^bash
+{{ if .Registry }}
+docker login -u{{ .RegistryUser }} {{ .Registry }}
+{{ end }}
 #原镜像
 {{ .OriginImageName }}
 
@@ -146,7 +152,6 @@ docker tag  {{ .TargetImageName }} {{ .originImageName }}
 docker images | grep $(echo {{ .OriginImageName }} |awk -F':' '{print $1}')
 
 ^^^
-{{ end }}
 {{ else }}
 **转换失败**
 详见 [构建任务](https://github.com/{{ .GhUser }}/{{ .Repo }}/actions/runs/{{ .RunId }})
@@ -264,9 +269,11 @@ func dockerTag(originImageName string, targetImageName string, cli *client.Clien
 func dockerPush(targetImageName string, cli *client.Client, ctx context.Context, config *Config) error {
 	fmt.Println("docker push ", targetImageName)
 	authConfig := types.AuthConfig{
-		Username:      config.RegistryUserName,
-		Password:      config.RegistryPassword,
-		ServerAddress: config.Registry,
+		Username: config.RegistryUserName,
+		Password: config.RegistryPassword,
+	}
+	if len(config.Registry) > 0 {
+		authConfig.ServerAddress = config.Registry
 	}
 	encodedJSON, err := json.Marshal(authConfig)
 	if err != nil {
