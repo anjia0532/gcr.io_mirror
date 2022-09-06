@@ -201,6 +201,8 @@ func mirrorByIssues(issues *github.Issue, config *Config) (err error, originImag
 		return errors.New("@" + *issues.GetUser().Login + " 暂不支持同步" + originImageName + ",目前仅支持同步 `" + strings.Join(registrys, " ,") + "`镜像"), originImageName, targetImageName
 	}
 
+	targetImageName = strings.ReplaceAll(targetImageName, "/", ".")
+
 	if len(config.RegistryNamespace) > 0 {
 		targetImageName = config.RegistryNamespace + "/" + targetImageName
 	}
