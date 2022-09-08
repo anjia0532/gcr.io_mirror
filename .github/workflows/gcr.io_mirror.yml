@@ -32,7 +32,7 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v3
       - name: 自动关闭不通过issues模板创建的issues
-        uses: anjia0532/auto-close-issues@v1.0.3
+        uses: anjia0532/auto-close-issues@v1.0.5
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           issue-close-message: "@${issue.user.login}: 不是说了别瞎搞嘛! :wave: 对于不按照 issues 模板来的一律自动关闭issues."
