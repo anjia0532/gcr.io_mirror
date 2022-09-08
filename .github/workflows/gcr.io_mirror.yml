@@ -54,7 +54,7 @@ jobs:
                   owner: '${{ github.repository_owner }}',
                   repo: '${{ github.event.repository.name }}',
                   issue_number: issues["number"],
-                  body: "@"+issues["user"]["login"]+" 不是说了嘛，通过模板创建 issues，请通过模板重新创建，此 issues 将自动关闭"
+                  body: "@"+issues["user"]["login"]+" 不是说了嘛，通过模板创建 issues，请通过[此模板](https://github.com/anjia0532/gcr.io_mirror/issues/new?assignees=&labels=porter&template=porter.md&title=%5BPORTER%5D)重新创建，此 issues 将自动关闭"
                 });
                 await github.issues.addLabels({
                   owner: '${{ github.repository_owner }}',
