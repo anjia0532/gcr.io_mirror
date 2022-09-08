@@ -35,14 +35,14 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: | 
-              const openIssues = await github.issues.listForRepo({
+            const openIssues = await github.issues.listForRepo({
                   owner: '${{ github.repository_owner }}',
                   repo: '${{ github.event.repository.name }}',
                   state: 'open',
                   per_page: 100,
                   sort: "created",
                   direction: "desc",
-              })
+            })
             
             if (!Array.isArray(openIssues["data"]) || !openIssues["data"].length) {
               core.setOutput('SUCCESS', true)
