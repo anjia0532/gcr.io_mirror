@@ -53,19 +53,19 @@ jobs:
                 await  github.issues.createComment({
                   owner: '${{ github.repository_owner }}',
                   repo: '${{ github.event.repository.name }}',
-                  issue_number: issues["id"],
+                  issue_number: issues["number"],
                   body: "@"+issues["user"]["login"]+" 不是说了嘛，通过模板创建 issues，请通过模板重新创建，此 issues 将自动关闭"
                 });
                 await github.issues.addLabels({
                   owner: '${{ github.repository_owner }}',
                   repo: '${{ github.event.repository.name }}',
-                  issue_number: issues["id"],
+                  issue_number: issues["number"],
                   labels: ["rude"]
                 });
               await github.issues.update({
                 owner: '${{ github.repository_owner }}',
                 repo: '${{ github.event.repository.name }}',
-                issue_number: issues["id"],
+                issue_number: issues["number"],
                 state: 'closed'
                 })
             }
