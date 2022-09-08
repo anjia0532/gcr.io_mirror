@@ -1,5 +1,5 @@
 ---
-name: gcr.io_porter
+name: 搬运镜像使用这个模板，别瞎改
 about: docker镜像搬运工
 title: "[PORTER]"
 labels: porter
