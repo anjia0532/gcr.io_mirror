@@ -29,10 +29,43 @@ jobs:
   auto_close_issues:
     runs-on: ubuntu-latest
     steps:
-      - name: 检出代码
-        uses: actions/checkout@v3
-      - name: 自动关闭不通过issues模板创建的issues
-        uses: anjia0532/auto-close-issues@v1.0.5
+      - name: check issues
+        id: check_issues
+        uses: actions/github-script@v3.1.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          issue-close-message: "@${issue.user.login}: 不是说了别瞎搞嘛! :wave: 对于不按照 issues 模板来的一律自动关闭issues."
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: | 
+              const openIssues = await github.issues.listForRepo({
+                  owner: '${{ github.repository_owner }}',
+                  repo: '${{ github.event.repository.name }}',
+                  state: 'open',
+                  per_page: 100,
+                  sort: "created",
+                  direction: "desc",
+              })
+            
+            if (!Array.isArray(openIssues["data"]) || !openIssues["data"].length) {
+              core.setOutput('SUCCESS', true)
+              return
+            }
+            
+            for(let issues of openIssues['data']){
+                await  github.issues.createComment({
+                  owner: '${{ github.repository_owner }}',
+                  repo: '${{ github.event.repository.name }}',
+                  issue_number: issues["id"],
+                  body: "@"+issues["user"]["login"]+" 不是说了嘛，通过模板创建 issues，请通过模板重新创建，此 issues 将自动关闭"
+                });
+                await github.issues.addLabels({
+                  owner: '${{ github.repository_owner }}',
+                  repo: '${{ github.event.repository.name }}',
+                  issue_number: issues["id"],
+                  labels: ["rude"]
+                });
+              await github.issues.update({
+                owner: '${{ github.repository_owner }}',
+                repo: '${{ github.event.repository.name }}',
+                issue_number: issues["id"],
+                state: 'closed'
+                })
+            }
