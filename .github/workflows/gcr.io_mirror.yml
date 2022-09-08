@@ -2,7 +2,7 @@ name: gcr.io_mirror
 
 on: 
   issues:
-    types: [opened]
+    types: [opened, edited]
   label:
     types: [created]
   workflow_dispatch:
@@ -35,5 +35,5 @@ jobs:
         uses: lucasbento/auto-close-issues@v1.0.2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          issue-close-message: "@${issue.user.login}: 不是说了别瞎搞嘛! :wave:\n\n让对于不按照 issues 模板来的一律自动关闭issues."
-          closed-issues-label: "🙁 Not following issue template" # optional property
+          issue-close-message: "@${issue.user.login}: 不是说了别瞎搞嘛! :wave: 对于不按照 issues 模板来的一律自动关闭issues."
+          closed-issues-label: "不按照模板提的Issues" # optional property
