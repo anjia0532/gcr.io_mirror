@@ -26,3 +26,14 @@ jobs:
       - name: 运行 go 代码
         run: go run main.go --github.token=${{ secrets.GITHUB_TOKEN }} --github.user=${{ github.repository_owner }} --github.repo=${{ github.event.repository.name }} --docker.registry=${{ secrets.DOCKER_REGISTRY }} --docker.namespace=${{ secrets.DOCKER_NAMESPACE }} --docker.user=${{ secrets.DOCKER_USER }} --docker.secret=${{ secrets.DOCKER_PASSWORD }} --github.run_id=${{ github.run_id }}
 
+  auto_close_issues:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+      - name: 自动关闭不通过issues模板创建的issues
+        uses: lucasbento/auto-close-issues@v1.0.2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          issue-close-message: "@${issue.user.login}: 不是说了别瞎搞嘛! :wave:\n\n让对于不按照 issues 模板来的一律自动关闭issues."
+          closed-issues-label: "🙁 Not following issue template" # optional property
