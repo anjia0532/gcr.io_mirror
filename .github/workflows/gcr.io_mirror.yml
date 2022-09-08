@@ -29,10 +29,11 @@ jobs:
   auto_close_issues:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v1
-      - name: Automatically close issues that don't follow the issue template
-        uses: lucasbento/auto-close-issues@28e2d2bff4035cd60111c3e1fa4d0145875fabd9
+      - name: 检出代码
+        uses: actions/checkout@v3
+      - name: 自动关闭不通过issues模板创建的issues
+        uses: anjia0532/auto-close-issues@v1.0.3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          issue-close-message: "@${issue.user.login}: hello! :wave:\n\nThis issue is being automatically closed because it does not follow the issue template." # optional property
+          issue-close-message: "@${issue.user.login}: 不是说了别瞎搞嘛! :wave: 对于不按照 issues 模板来的一律自动关闭issues."
+          closed-issues-label: "不按照模板提的Issues"
