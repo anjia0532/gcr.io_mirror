@@ -210,26 +210,30 @@ func mirrorByIssues(issues *github.Issue, config *Config) (err error, originImag
 		targetImageName = config.Registry + "/" + targetImageName
 	}
 	fmt.Println("source:", originImageName, " , target:", targetImageName)
+
+	//execCmd("docker", "login", config.Registry, "-u", config.RegistryUserName, "-p", config.RegistryPassword)
 	cli, ctx, err := dockerLogin(config)
 	if err != nil {
 		return errors.New("@" + config.GhUser + " ,docker login 报错 `" + err.Error() + "`"), originImageName, targetImageName
 	}
-	//execCmd("docker", "login", config.Registry, "-u", config.RegistryUserName, "-p", config.RegistryPassword)
+
 	//execCmd("docker", "pull", originImageName)
 	err = dockerPull(originImageName, cli, ctx)
 
 	if err != nil {
 		return errors.New("@" + *issues.GetUser().Login + " ,docker pull 报错 `" + err.Error() + "`"), originImageName, targetImageName
 	}
+
 	//execCmd("docker", "tag", originImageName, targetImageName)
 	err = dockerTag(originImageName, targetImageName, cli, ctx)
 	if err != nil {
-		return errors.New("@" + config.GhUser + " ,docker tag 报错 `" + err.Error() + "`"), originImageName, targetImageName
+		return errors.New("@" + *issues.GetUser().Login + " ,docker tag 报错 `" + err.Error() + "`"), originImageName, targetImageName
 	}
+
 	//execCmd("docker", "push", targetImageName)
 	err = dockerPush(targetImageName, cli, ctx, config)
 	if err != nil {
-		return errors.New("@" + config.GhUser + " ,docker push 报错 `" + err.Error() + "`"), originImageName, targetImageName
+		return errors.New("@" + *issues.GetUser().Login + " ,docker push 报错 `" + err.Error() + "`"), originImageName, targetImageName
 	}
 
 	return nil, originImageName, targetImageName
