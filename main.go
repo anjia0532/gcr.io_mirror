@@ -48,6 +48,7 @@ func main() {
 		RunId:             *runId,
 		Rules: map[string]string{
 			"^gcr.io":          "",
+			"^docker.io":       "",
 			"^k8s.gcr.io":      "google-containers",
 			"^registry.k8s.io": "google-containers",
 			"^quay.io":         "quay",
