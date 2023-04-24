@@ -3,4 +3,4 @@
 "^registry.k8s.io": "google-containers"
 "^quay.io":         "quay"
 "^ghcr.io":         "ghcr"
-"^docker.io/":       ""
+"^docker.io/":       "docker"
