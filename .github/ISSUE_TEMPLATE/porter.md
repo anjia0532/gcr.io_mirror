@@ -19,4 +19,4 @@ issues的内容无所谓，可以为空
 
 **注意:**
 
-**>>>>>>>>本项目目前仅支持 gcr.io、k8s.gcr.io、registry.k8s.io、quay.io、ghcr.io 镜像<<<<<<<<**
+**>>>>>>>>本项目目前仅支持 gcr.io、k8s.gcr.io、docker.io、registry.k8s.io、quay.io、ghcr.io 镜像<<<<<<<<**
