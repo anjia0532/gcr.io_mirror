@@ -6,12 +6,12 @@ on:
   label:
     types: [created]
   workflow_dispatch:
-
+  Schedule:
+    -cron: '0 16 * * *'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: contains(github.event.issue.labels.*.name, 'porter')
     steps:
       - name: 检出代码
         uses: actions/checkout@v3
