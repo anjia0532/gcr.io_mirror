@@ -11,7 +11,13 @@ assignees: ''
 
 **Issues 必须带 `porter` label，** 简单来说就是通过模板创建就没问题，别抖机灵自己瞎弄。
 
-**标题必须为 `[PORTER]镜像名:tag` 的格式，** 例如`[PORTER]k8s.gcr.io/federation-controller-manager-arm64:v1.3.1-beta.1`,`[PORTER]gcr.io/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1`
+**标题必须为 `[PORTER]镜像名:tag` 的格式，** 例如
+- `[PORTER]k8s.gcr.io/federation-controller-manager-arm64:v1.3.1-beta.1`
+- `[PORTER]gcr.io/google-containers/federation-controller-manager-arm64:v1.3.1-beta.1`
+
+**特别的**，如果要指定平台的话 `[PORTER]镜像名:tag|平台类型`
+- `[PORTER]busybox:latest|linux/arm64`
+- `[PORTER]busybox:latest|linux/arm/v7`
 
 issues的内容无所谓，可以为空
 
