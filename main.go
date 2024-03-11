@@ -20,6 +20,34 @@ import (
 	"text/template"
 )
 
+var resultTpl = `
+{{ if .Success }}
+**转换完成**
+^^^bash
+{{ if .Registry }}
+docker login -u{{ .RegistryUser }} {{ .Registry }}
+{{ end }}
+#原镜像
+{{ .OriginImageName }}
+
+#转换后镜像
+{{ .TargetImageName }}
+
+
+#下载并重命名镜像
+docker pull {{ .TargetImageName }} {{ if .Platform }} --platform {{ .Platform }} {{ end }}
+
+docker tag  {{ .TargetImageName }} {{ (split .OriginImageName "@")._0 }}
+
+docker images | grep $(echo {{ .OriginImageName }} |awk -F':' '{print $1}')
+
+^^^
+{{ else }}
+**转换失败**
+详见 [构建任务](https://github.com/{{ .GhUser }}/{{ .Repo }}/actions/runs/{{ .RunId }})
+{{ end }}
+`
+
 func main() {
 	ctx := context.Background()
 
@@ -117,7 +145,10 @@ func main() {
 	}
 
 	var buf bytes.Buffer
-	tmpl, err := template.New("result").Parse(resultTpl)
+	funcmap := template.FuncMap{
+		"split": strings.Split,
+	}
+	tmpl, err := template.New("result").Funcs(funcmap).Parse(resultTpl)
 	err = tmpl.Execute(&buf, &result)
 
 	fmt.Println("添加 转换结果 Comment")
@@ -135,34 +166,6 @@ func main() {
 	fmt.Println("关闭 Issues")
 	issuesClose(issue, cli, ctx)
 }
-
-var resultTpl = `
-{{ if .Success }}
-**转换完成**
-^^^bash
-{{ if .Registry }}
-docker login -u{{ .RegistryUser }} {{ .Registry }}
-{{ end }}
-#原镜像
-{{ .OriginImageName }}
-
-#转换后镜像
-{{ .TargetImageName }}
-
-
-#下载并重命名镜像
-docker pull {{ .TargetImageName }} {{ if .Platform }} --platform {{ .Platform }} {{ end }}
-
-docker tag  {{ .TargetImageName }} {{ .OriginImageName }}
-
-docker images | grep $(echo {{ .OriginImageName }} |awk -F':' '{print $1}')
-
-^^^
-{{ else }}
-**转换失败**
-详见 [构建任务](https://github.com/{{ .GhUser }}/{{ .Repo }}/actions/runs/{{ .RunId }})
-{{ end }}
-`
 
 func issuesClose(issues *github.Issue, cli *github.Client, ctx context.Context) {
 	names := strings.Split(*issues.RepositoryURL, "/")
@@ -210,7 +213,7 @@ func mirrorByIssues(issues *github.Issue, config *Config) (err error, originImag
 	targetImageName = originImageName
 
 	if strings.ContainsAny(originImageName, "@") {
-		return errors.New("@" + *issues.GetUser().Login + " 不支持同步带摘要信息的镜像,参见 [can't tag a image with digest: refusing to create a tag with a digest reference](https://github.com/docker/cli/issues/4545)"), originImageName, targetImageName, platform
+		targetImageName = strings.Split(originImageName, "@")[0]
 	}
 
 	registrys := []string{}
