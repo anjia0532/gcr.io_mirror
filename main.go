@@ -205,10 +205,15 @@ func mirrorByIssues(issues *github.Issue, config *Config) (err error, originImag
 	targetImageName = originImageName
 
 	if strings.ContainsAny(originImageName, "@") {
-		return errors.New("@" + *issues.GetUser().Login + " 不支持同步带摘要信息的镜像"), originImageName, targetImageName, platform
+		return errors.New("@" + *issues.GetUser().Login + " 不支持同步带摘要信息的镜像,参见 [can't tag a image with digest: refusing to create a tag with a digest reference](https://github.com/docker/cli/issues/4545)"), originImageName, targetImageName, platform
 	}
 
 	registrys := []string{}
+
+	if strings.Index(originImageName, ".") < 0 {
+		originImageName = "docker.io/" + originImageName
+	}
+
 	for k, v := range config.Rules {
 		targetImageName = regexp.MustCompile(k).ReplaceAllString(targetImageName, v)
 		registrys = append(registrys, k)
