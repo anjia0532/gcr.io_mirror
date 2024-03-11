@@ -202,6 +202,11 @@ func mirrorByIssues(issues *github.Issue, config *Config) (err error, originImag
 	if len(names) > 1 {
 		platform = names[1]
 	}
+
+	if strings.Index(originImageName, ".") < 0 {
+		originImageName = "docker.io/" + originImageName
+	}
+
 	targetImageName = originImageName
 
 	if strings.ContainsAny(originImageName, "@") {
@@ -209,10 +214,6 @@ func mirrorByIssues(issues *github.Issue, config *Config) (err error, originImag
 	}
 
 	registrys := []string{}
-
-	if strings.Index(originImageName, ".") < 0 {
-		originImageName = "docker.io/" + originImageName
-	}
 
 	for k, v := range config.Rules {
 		targetImageName = regexp.MustCompile(k).ReplaceAllString(targetImageName, v)
