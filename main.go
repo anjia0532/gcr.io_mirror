@@ -37,7 +37,7 @@ docker login -u{{ .RegistryUser }} {{ .Registry }}
 #下载并重命名镜像
 docker pull {{ .TargetImageName }} {{ if .Platform }} --platform {{ .Platform }} {{ end }}
 
-docker tag  {{ .TargetImageName }} {{ (split .OriginImageName "@")._0 }}
+docker tag  {{ .TargetImageName }} {{ index (split .OriginImageName "@") 0 }}
 
 docker images | grep $(echo {{ .OriginImageName }} |awk -F':' '{print $1}')
 
