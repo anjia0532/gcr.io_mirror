@@ -206,7 +206,7 @@ func mirrorByIssues(issues *github.Issue, config *Config) (err error, originImag
 		platform = names[1]
 	}
 
-	if strings.Index(originImageName, ".") < 0 {
+	if strings.Index(originImageName, ".") > strings.Index(originImageName, "/") {
 		originImageName = "docker.io/" + originImageName
 	}
 
