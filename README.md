@@ -68,6 +68,7 @@ Fork/分叉代码自行维护
 - 可选: 修改 [./rules.yaml](./rules.yaml) 增加暂未支持的镜像库
 - 在 [./settings/actions](../../settings/actions) 的 `Workflow permissions` 选项中，授予读写权限
 - 在 [./settings/secrets/actions](../../settings/secrets/actions) 创建自己的参数
+- 随便新建个issues，然后在右侧创建个名为 `porter` 和 `question` 的 label，后续通过模板创建时会自动带上。 详见 https://github.com/anjia0532/gcr.io_mirror/issues/3893
 
 `DOCKER_REGISTRY`: 如果推到 docker hub 为空即可
 
